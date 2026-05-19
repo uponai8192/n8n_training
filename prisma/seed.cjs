@@ -285,11 +285,11 @@ const EXERCISES = [
   },
   {
     slug: "04-sending-notifications",
-    title: "Exercise 4: Sending Notifications After Calls",
+    title: "Exercise 7: Sending Notifications After Calls",
     description:
       "Send email or Slack notifications when calls end. Use the Gmail, Outlook, or Slack nodes to alert your team when important calls complete.",
     difficulty: "INTERMEDIATE",
-    order: 4,
+    order: 6,
     tags: "notifications,email,slack,gmail",
     content: {
       overview:
@@ -375,11 +375,11 @@ const EXERCISES = [
   },
   {
     slug: "05-logging-to-google-sheets",
-    title: "Exercise 5: Logging Call Data to Google Sheets",
+    title: "Exercise 8: Logging Call Data to Google Sheets",
     description:
       "Automatically log every UponAI call to a Google Sheet for tracking and analysis. Learn to append rows, handle duplicates, and structure your data for reporting.",
     difficulty: "INTERMEDIATE",
-    order: 5,
+    order: 10,
     tags: "google-sheets,logging,data,reporting",
     content: {
       overview:
@@ -457,11 +457,11 @@ const EXERCISES = [
   },
   {
     slug: "06-http-request-crm",
-    title: "Exercise 6: Calling External APIs & CRM Updates",
+    title: "Exercise 9: Calling External APIs & CRM Updates",
     description:
       "Use the HTTP Request node to call any external API. Update CRM contact records, create follow-up tasks, or trigger third-party actions when calls complete.",
     difficulty: "INTERMEDIATE",
-    order: 6,
+    order: 11,
     tags: "http-request,api,crm,hubspot,airtable",
     content: {
       overview:
@@ -543,7 +543,7 @@ const EXERCISES = [
   },
   {
     slug: "07-ai-transcript-analysis",
-    title: "Exercise 7: AI-Powered Transcript Analysis",
+    title: "Exercise 13: AI-Powered Transcript Analysis",
     description:
       "Use n8n's AI nodes (OpenAI/Anthropic) to analyze call transcripts, extract key information, generate summaries, and identify action items automatically.",
     difficulty: "ADVANCED",
@@ -627,7 +627,7 @@ const EXERCISES = [
   },
   {
     slug: "08-error-handling-retries",
-    title: "Exercise 8: Error Handling & Retry Logic",
+    title: "Exercise 14: Error Handling & Retry Logic",
     description:
       "Build production-grade workflows with proper error handling, automatic retries, and failure notifications. Learn to use n8n's Error Trigger and workflow settings.",
     difficulty: "ADVANCED",
@@ -709,7 +709,7 @@ const EXERCISES = [
   },
   {
     slug: "09-dynamic-agent-updates",
-    title: "Exercise 9: Dynamic UponAI Agent Updates",
+    title: "Exercise 15: Dynamic UponAI Agent Updates",
     description:
       "Use the UponAI API to dynamically update agent configurations — change prompts, voices, and variables in real-time based on business rules, time of day, or CRM data.",
     difficulty: "ADVANCED",
@@ -800,11 +800,11 @@ const EXERCISES = [
   },
   {
     slug: "10-production-ready-platform",
-    title: "Exercise 10: Production-Ready UponAI Platform",
+    title: "Exercise 18: Production-Ready UponAI Platform",
     description:
       "Build a complete, production-grade UponAI automation platform combining all patterns: inbound handling, outbound campaigns, AI analysis, CRM sync, notifications, error handling, and monitoring.",
     difficulty: "EXPERT",
-    order: 10,
+    order: 17,
     tags: "production,advanced,architecture,monitoring,complete",
     content: {
       overview:
@@ -942,11 +942,11 @@ async function main() {
     // ─── BEGINNER ────────────────────────────────────────────────────────────
     {
       slug: "11-expressions-and-variables",
-      title: "Exercise 11: Mastering n8n Expressions",
+      title: "Exercise 4: Mastering n8n Expressions",
       description:
         "Learn to write n8n expressions to reference data from previous nodes, perform calculations, format strings, and work with dates — the core skill that unlocks every advanced workflow.",
       difficulty: "BEGINNER",
-      order: 11,
+      order: 4,
       tags: "expressions,variables,data,basics",
       content: {
         overview:
@@ -1047,11 +1047,11 @@ async function main() {
     },
     {
       slug: "12-code-node-transformations",
-      title: "Exercise 12: The Code Node — JavaScript in n8n",
+      title: "Exercise 5: The Code Node — JavaScript in n8n",
       description:
         "Use the Code node to run full JavaScript inside your workflows. Transform complex data structures, loop over arrays, call utility functions, and build logic that expressions can't handle.",
       difficulty: "BEGINNER",
-      order: 12,
+      order: 5,
       tags: "code-node,javascript,data-transformation",
       content: {
         overview:
@@ -1125,7 +1125,7 @@ async function main() {
     },
     {
       slug: "13-debugging-and-testing",
-      title: "Exercise 13: Debugging, Testing & Execution History",
+      title: "Exercise 6: Debugging, Testing & Execution History",
       description:
         "Learn to use n8n's execution history, pin data, and debug tools to build workflows with confidence. Never get stuck on a failing workflow again.",
       difficulty: "BEGINNER",
@@ -1218,7 +1218,7 @@ async function main() {
     // ─── INTERMEDIATE ────────────────────────────────────────────────────────
     {
       slug: "14-scheduled-reports",
-      title: "Exercise 14: Scheduled Reports & Digest Emails",
+      title: "Exercise 10: Scheduled Reports & Digest Emails",
       description:
         "Build a daily automated report that aggregates your UponAI call data from Google Sheets and emails a formatted summary digest to your team every morning.",
       difficulty: "INTERMEDIATE",
@@ -1298,7 +1298,7 @@ async function main() {
     },
     {
       slug: "15-split-in-batches",
-      title: "Exercise 15: Processing Lists with Split in Batches",
+      title: "Exercise 11: Processing Lists with Split in Batches",
       description:
         "Learn to process large arrays of data efficiently. Use Split in Batches to handle contact lists, bulk API calls, and multi-row spreadsheet data without hitting rate limits.",
       difficulty: "INTERMEDIATE",
@@ -1382,11 +1382,11 @@ async function main() {
     },
     {
       slug: "16-form-trigger-intake",
-      title: "Exercise 16: Lead Capture with the Form Trigger",
+      title: "Exercise 12: Lead Capture with the Form Trigger",
       description:
         "Use n8n's built-in Form trigger to create a no-code web form. Capture leads, intake info, or feedback — then automatically trigger a UponAI outbound call to follow up.",
       difficulty: "INTERMEDIATE",
-      order: 16,
+      order: 12,
       tags: "form-trigger,lead-capture,no-code,intake,outbound",
       content: {
         overview:
@@ -1459,11 +1459,11 @@ async function main() {
     // ─── ADVANCED ────────────────────────────────────────────────────────────
     {
       slug: "17-outbound-campaign-engine",
-      title: "Exercise 17: Outbound Call Campaign Engine",
+      title: "Exercise 16: Outbound Call Campaign Engine",
       description:
         "Build a full outbound calling campaign system with retry logic, do-not-call blackout windows, multi-touch sequences, and real-time progress tracking.",
       difficulty: "ADVANCED",
-      order: 17,
+      order: 16,
       tags: "outbound,campaigns,retry-logic,scheduling,sequences",
       content: {
         overview:
@@ -1538,7 +1538,7 @@ async function main() {
     },
     {
       slug: "18-live-call-monitoring",
-      title: "Exercise 18: Live Call Monitoring & Alerts",
+      title: "Exercise 17: Live Call Monitoring & Alerts",
       description:
         "Build a real-time call monitoring system that tracks active calls, detects anomalies (unusually long calls, repeated failures), and sends instant alerts with context.",
       difficulty: "ADVANCED",
