@@ -24,7 +24,16 @@ export function getDatabaseUrl() {
 
 export function getAppBaseUrl(request: Request) {
   const configuredUrl = process.env.NEXTAUTH_URL;
-  if (configuredUrl) return configuredUrl;
+  if (configuredUrl) {
+    try {
+      const hostname = new URL(configuredUrl).hostname;
+      if (!isProduction() || (hostname !== "localhost" && hostname !== "127.0.0.1")) {
+        return configuredUrl;
+      }
+    } catch {
+      if (!isProduction()) return configuredUrl;
+    }
+  }
 
   return new URL(request.url).origin;
 }
@@ -35,6 +44,17 @@ export function assertMagicLinkEmailConfig() {
   if (isProduction()) {
     throw new RuntimeConfigError(
       "Magic link email is not configured. Set RESEND_API_KEY and RESEND_FROM_EMAIL in Vercel."
+    );
+  }
+}
+
+export function assertProductionDatabaseConfig() {
+  if (!isProduction()) return;
+
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl || dbUrl.startsWith("file:")) {
+    throw new RuntimeConfigError(
+      "Production database is not configured. Set DATABASE_URL in Vercel to a hosted database instead of the local .env SQLite file."
     );
   }
 }

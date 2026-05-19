@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import {
   RuntimeConfigError,
+  assertProductionDatabaseConfig,
   assertMagicLinkEmailConfig,
   getAppBaseUrl,
   isProduction,
@@ -51,6 +52,8 @@ async function sendMagicLinkEmail(email: string, url: string) {
 
 export async function POST(req: Request) {
   try {
+    assertProductionDatabaseConfig();
+
     const { email } = await req.json();
     if (!email) {
       return NextResponse.json({ error: "Email is required." }, { status: 400 });
