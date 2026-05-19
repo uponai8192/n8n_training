@@ -15,7 +15,7 @@ const EXERCISES = [
     slug: "01-your-first-webhook",
     title: "Exercise 1: Your First Webhook",
     description:
-      "Set up your first n8n webhook node and receive a test POST request. Learn how webhooks work as the entry point for all UponAI automations.",
+      "Set up your first n8n webhook node and receive a test event from the UponAI admin panel. Learn how webhooks work as the entry point for all UponAI automations.",
     difficulty: "BEGINNER",
     order: 1,
     tags: "webhook,basics,n8n",
@@ -25,12 +25,12 @@ const EXERCISES = [
       objectives: [
         "Create and activate a Webhook node in n8n",
         "Understand the difference between test and production webhook URLs",
-        "Send a test POST request and see the data appear in n8n",
+        "Send a test event from the UponAI admin panel and see the data appear in n8n",
         "Understand the basic n8n canvas and workflow structure",
       ],
       prerequisites: [
         "An n8n account (cloud or self-hosted at n8n.io)",
-        "A way to send HTTP requests (Postman, Insomnia, or curl)",
+        "Access to the UponAI admin panel and an agent you can edit",
       ],
       estimatedTime: "20–30 minutes",
       tools: [
@@ -67,22 +67,22 @@ const EXERCISES = [
         {
           title: "Start listening for requests",
           content:
-            'Click the **Listen for test event** button that appears at the bottom of the Webhook node. The node will now show a spinning indicator — it\'s waiting for a POST request. You have 120 seconds before it times out.',
+            'Click the **Listen for test event** button that appears at the bottom of the Webhook node. The node will now show a spinning indicator — it\'s waiting for an incoming webhook event. You have 120 seconds before it times out.',
           warning:
             "The Webhook node only listens for one request at a time in test mode. After receiving a request, you'll need to click it again to listen for another.",
         },
         {
-          title: "Send a test POST request",
+          title: "Send a test event from the UponAI admin panel",
           content:
-            "Copy the **Test URL** from the node. Open Postman (or any HTTP client) and create a new POST request to that URL. In the **Body** tab, select **raw** and **JSON**, then paste this sample body:",
-          code: '{\n  "event": "test_event",\n  "message": "Hello from Postman!",\n  "timestamp": "2024-01-01T00:00:00Z",\n  "data": {\n    "call_id": "test-123",\n    "agent_id": "agent-abc"\n  }\n}',
+            "Copy the **Test URL** from the Webhook node. In the UponAI admin panel, open an agent, paste that URL into the webhook field, and click the **Test** button. UponAI will send a sample webhook event to n8n so you can see the payload without using Postman or curl.",
+          code: '{\n  "event": "test_event",\n  "message": "Hello from UponAI test!",\n  "timestamp": "2024-01-01T00:00:00Z",\n  "data": {\n    "call_id": "test-123",\n    "agent_id": "agent-abc"\n  }\n}',
           codeLanguage: "json",
-          tip: "You can also use curl: curl -X POST YOUR_TEST_URL -H 'Content-Type: application/json' -d '{\"event\": \"test\"}'",
+          tip: "For beginner users, stick with the built-in Test button in the UponAI admin panel. It is the simplest way to confirm the webhook is connected correctly.",
         },
         {
           title: "Inspect the received data",
           content:
-            "After sending the request, n8n will display the received data below the Webhook node. Click on the node to see the full data structure. You'll see your JSON body nested under `body`, plus metadata like `headers`, `method`, and `path`.",
+            "After you click Test in the UponAI admin panel, n8n will display the received data below the Webhook node. Click on the node to see the full data structure. You'll see the webhook body nested under `body`, plus metadata like `headers`, `method`, and `path`.",
           tip: "Notice the structure: `$json.body.event`, `$json.body.data.call_id`. This dot-notation is how you reference data in n8n expressions later.",
         },
         {
@@ -98,11 +98,11 @@ const EXERCISES = [
       ],
       aiTips: [
         "Ask ChatGPT or Claude: 'Explain how n8n webhook URLs work and the difference between test and production mode.'",
-        "Use AI to generate test JSON payloads: 'Generate a realistic UponAI call_ended webhook payload with all the standard fields.'",
+        "Use AI to explain what fields matter most in a beginner webhook test: 'What should I look for first in a basic UponAI webhook payload?'",
         "If you're stuck: paste the n8n error message into an AI chat for instant troubleshooting help.",
       ],
       testingGuide:
-        "Send 3 different POST requests with different JSON bodies. Verify that all data appears correctly in n8n's data panel. Try sending a request with nested objects and arrays to understand how n8n displays complex data.",
+        "Use the UponAI admin panel Test button at least 3 times while your Webhook node is listening. Verify that the event arrives in n8n each time and that you can identify the main fields in the payload, especially `body.event`, `body.data.call_id`, and the request metadata.",
       nextSteps:
         "Now that you can receive webhook data, Exercise 2 will show you how to receive and parse real UponAI call events, understanding the specific fields UponAI sends.",
     },
