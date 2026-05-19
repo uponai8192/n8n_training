@@ -1,29 +1,10 @@
 import { PrismaClient } from "@prisma/client";
-import { getDatabaseUrl } from "./runtime-config";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
 
 function createPrismaClient(): PrismaClient {
-  const dbUrl = getDatabaseUrl();
-
-  // Turso / libSQL (production on Vercel)
-  if (dbUrl.startsWith("libsql://") || dbUrl.startsWith("https://")) {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { PrismaLibSQL } = require("@prisma/adapter-libsql");
-    const adapter = new PrismaLibSQL({
-      url: dbUrl,
-      authToken: process.env.DATABASE_AUTH_TOKEN,
-    });
-    return new PrismaClient({ adapter });
-  }
-
-  // Local SQLite file (development)
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { PrismaBetterSqlite3 } = require("@prisma/adapter-better-sqlite3");
-  const path = require("path") as typeof import("path");
-  const resolvedPath = dbUrl.replace("file:", "").replace("./", "");
-  const absolutePath = resolvedPath.startsWith("/")
-    ? resolvedPath
-    : path.join(process.cwd(), resolvedPath);
-  const adapter = new PrismaBetterSqlite3({ url: `file:${absolutePath}` });
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const adapter = new PrismaPg(pool);
   return new PrismaClient({ adapter });
 }
 
