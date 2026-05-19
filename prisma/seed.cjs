@@ -111,17 +111,17 @@ const EXERCISES = [
     slug: "02-uponai-call-events",
     title: "Exercise 2: Receiving UponAI Call Events",
     description:
-      "Configure your n8n webhook to receive real UponAI call lifecycle events — call_started, call_ended, and call_analyzed. Learn the UponAI webhook payload structure.",
+      "Connect UponAI to n8n and capture one real `call_analyzed` event. Learn where the call summary, transcript, and custom answers live in the webhook payload.",
     difficulty: "BEGINNER",
     order: 2,
     tags: "uponai,webhook,call-events",
     content: {
       overview:
-        "UponAI sends webhook events at key moments in every call's lifecycle. Understanding these events and their data structure is essential before you can build any automation. In this exercise, you'll configure a UponAI agent to send events to your n8n webhook and inspect the real payload structure.",
+        "Most practical UponAI workflows start with one thing: a real `call_analyzed` webhook. That payload includes the transcript, summary, sentiment, and the custom answers your agent collected. In this exercise, you'll connect an agent to n8n, make one real test call, and inspect the exact data you'll use in the next lessons.",
       objectives: [
         "Configure a UponAI agent webhook URL in the UponAI dashboard",
-        "Understand the three primary call events: call_started, call_ended, call_analyzed",
-        "Parse and display key fields from the UponAI payload",
+        "Capture one real `call_analyzed` webhook from a test call",
+        "Find the summary, transcript, sentiment, and custom answers in the payload",
         "Use the Set node to extract specific fields",
       ],
       prerequisites: [
@@ -140,7 +140,7 @@ const EXERCISES = [
         {
           name: "UponAI Webhook Events",
           description:
-            "UponAI fires webhooks for: call_started (when a call connects), call_ended (when a call disconnects), and call_analyzed (after AI analysis completes — usually 30–60 seconds after call end). The call_analyzed event contains transcript and sentiment data.",
+            "UponAI can fire multiple events, but `call_analyzed` is the most useful starting point because it contains the transcript, call summary, sentiment, and custom analysis answers your workflow can act on.",
           docUrl: "https://docs.uponai.com/api-references/webhook",
         },
       ],
@@ -153,70 +153,68 @@ const EXERCISES = [
         {
           title: "Configure the webhook in UponAI",
           content:
-            "In your UponAI dashboard, go to **Agents** → select your agent → **Webhooks** tab. Enter your n8n **Production URL** in the webhook field. Enable all event types: `call_started`, `call_ended`, `call_analyzed`.\n\nActivate your n8n workflow by toggling it ON (top-right of the canvas) before the next step.",
+            "In your UponAI dashboard, go to **Agents** → select your agent → **Webhooks** tab. Enter your n8n **Production URL** in the webhook field. For this lesson, enable just **`call_analyzed`** if your agent settings allow event selection.\n\nActivate your n8n workflow by toggling it ON before the next step.",
           warning:
             "UponAI sends webhooks to the Production URL, not the Test URL. Make sure your workflow is **activated** before making a test call.",
         },
         {
           title: "Make a test call to your UponAI agent",
           content:
-            "Use UponAI's built-in call testing in the dashboard, or call your agent's phone number directly. Keep the call brief (10–30 seconds). You should see events arriving in your n8n workflow execution history.",
+            "Use UponAI's built-in call testing in the dashboard, or call your agent's phone number directly. Ask one or two simple questions so the agent produces a summary and transcript. After the call ends, wait for the `call_analyzed` webhook to arrive in n8n.",
           tip: "In n8n, go to **Executions** in the left sidebar to see all triggered workflow runs. Click any execution to inspect the data.",
         },
         {
-          title: "Inspect the call_started payload",
+          title: "Inspect the real `call_analyzed` payload",
           content:
-            "Open an execution triggered by `call_started`. The UponAI payload looks like this:",
-          code: '{\n  "event": "call_started",\n  "call": {\n    "call_id": "call_abc123",\n    "agent_id": "agent_xyz",\n    "call_status": "ongoing",\n    "start_timestamp": 1704067200000,\n    "from_number": "+15551234567",\n    "to_number": "+15559876543",\n    "direction": "inbound",\n    "metadata": {}\n  }\n}',
+            "Open the execution triggered by `call_analyzed`. The parts beginners usually care about are the event name, caller details, summary, transcript, and custom analysis answers. A simplified example looks like this:",
+          code: '{\n  "event": "call_analyzed",\n  "call": {\n    "call_id": "call_abc123",\n    "from_number": "+15551234567",\n    "recording_url": "https://example.com/recording",\n    "transcript": "Agent: Thanks for calling...\\nCaller: I have a water leak...",\n    "call_analysis": {\n      "call_summary": "Caller reported a possible emergency water leak and requested a callback.",\n      "user_sentiment": "neutral",\n      "custom_analysis_data": {\n        "first_name": "Jane",\n        "last_name": "Doe",\n        "reason_call": "Water leak in kitchen",\n        "emergency_call": true,\n        "email_address": "jane@example.com"\n      }\n    }\n  }\n}',
           codeLanguage: "json",
         },
         {
-          title: "Inspect the call_ended payload",
+          title: "Notice the fields you will use later",
           content:
-            "The `call_ended` event has more data including duration and disconnect reason:",
-          code: '{\n  "event": "call_ended",\n  "call": {\n    "call_id": "call_abc123",\n    "agent_id": "agent_xyz",\n    "call_status": "ended",\n    "start_timestamp": 1704067200000,\n    "end_timestamp": 1704067260000,\n    "duration_ms": 60000,\n    "disconnect_reason": "user_hangup",\n    "from_number": "+15551234567",\n    "to_number": "+15559876543",\n    "direction": "inbound"\n  }\n}',
-          codeLanguage: "json",
+            "Inside the execution viewer, expand these paths and make sure you can find them:\n\n- `body.event`\n- `body.call.from_number`\n- `body.call.recording_url`\n- `body.call.call_analysis.call_summary`\n- `body.call.call_analysis.user_sentiment`\n- `body.call.call_analysis.custom_analysis_data`",
+          tip: "If you can find those six locations in the data panel, you're ready for the next lessons.",
         },
         {
           title: "Add a Set node to extract key fields",
           content:
-            "Connect a **Set node** after the Webhook. In the Set node, click **Add Value** and create these fields:\n\n- **event_type** → Expression: `{{ $json.body.event }}`\n- **call_id** → Expression: `{{ $json.body.call.call_id }}`\n- **agent_id** → Expression: `{{ $json.body.call.agent_id }}`\n- **from_number** → Expression: `{{ $json.body.call.from_number }}`\n- **call_status** → Expression: `{{ $json.body.call.call_status }}`",
+            "Connect a **Set** node after the Webhook. Create a few clean fields so the rest of your workflow is easier to read:\n\n- **event_type** → `{{ $json.body.event }}`\n- **caller_name** → `{{ $json.body.call.call_analysis.custom_analysis_data.first_name }} {{ $json.body.call.call_analysis.custom_analysis_data.last_name }}`\n- **reason_for_call** → `{{ $json.body.call.call_analysis.custom_analysis_data.reason_call }}`\n- **caller_phone** → `{{ $json.body.call.from_number }}`\n- **call_summary** → `{{ $json.body.call.call_analysis.call_summary }}`\n- **emergency_call** → `{{ $json.body.call.call_analysis.custom_analysis_data.emergency_call }}`",
           tip: "Click the ƒ (function) icon next to any field to switch to Expression mode, which lets you reference data from previous nodes using {{ }} syntax.",
         },
         {
-          title: "Test with a simulated payload",
+          title: "Pin this real data so you can keep building",
           content:
-            "Use the Test URL to simulate a UponAI event without making a real call. Click **Listen for test event** on your Webhook node, then send this POST request:",
-          code: "curl -X POST YOUR_TEST_URL \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"event\": \"call_ended\",\n    \"call\": {\n      \"call_id\": \"test-001\",\n      \"agent_id\": \"agent-demo\",\n      \"call_status\": \"ended\",\n      \"duration_ms\": 45000,\n      \"disconnect_reason\": \"user_hangup\",\n      \"from_number\": \"+15551234567\"\n    }\n  }'",
-          codeLanguage: "bash",
+            "Right-click the Webhook node and choose **Pin Data** after you capture a real `call_analyzed` event. That lets you keep building the workflow without making a new phone call every time you test.",
+          tip: "Pinned data is the beginner-friendly replacement for tools like Postman. Capture one real call once, then keep building with it.",
         },
       ],
       aiTips: [
-        "Ask AI: 'What does each UponAI disconnect_reason value mean and when would I use it in a conditional workflow?'",
-        "Ask AI: 'Write an n8n expression to convert duration_ms to a human-readable format like 1m 30s'",
-        "Use Claude to understand the full UponAI API: 'Summarize all webhook event types available in UponAI and what data each one contains.'",
+        "Ask AI: 'Explain this UponAI webhook payload to me in plain English and tell me which fields matter most first.'",
+        "Ask AI: 'Write an n8n expression that combines first name and last name, even if one of them is blank.'",
+        "Ask AI: 'What is the difference between call_summary, transcript, and custom_analysis_data in an UponAI webhook?'",
       ],
       testingGuide:
-        "Make 3 test calls: one short (under 30s), one medium (1–2 min), and one where you hang up immediately. Compare the payloads. Note how `duration_ms` and `disconnect_reason` differ between calls.",
+        "Make one real test call, then confirm your Set node shows the cleaned-up fields correctly. After that, pin the data and re-run the workflow from the editor until the fields look right.",
       nextSteps:
-        "In Exercise 3, you'll use the IF node to create conditional logic based on call outcomes — routing differently depending on whether the call was completed, failed, or transferred.",
+        "In Exercise 3, you'll use one simple IF node to decide what to do with a call based on a real business answer such as `emergency_call`, `sales_call`, or `roofing_inquiry`.",
     },
   },
   {
     slug: "03-conditional-routing",
     title: "Exercise 3: Conditional Routing with IF Nodes",
     description:
-      "Use the IF node to route your workflow differently based on call outcomes. Handle completed calls, failed calls, and voicemails with separate logic paths.",
+      "Use one simple IF node to split calls into two paths based on a real answer from the call, like `emergency_call` or `sales_call`.",
     difficulty: "BEGINNER",
     order: 3,
     tags: "if-node,conditional,routing,call-status",
     content: {
       overview:
-        "Real automations need to handle different scenarios differently. A completed call might need a follow-up email; a failed call might need a retry; a voicemail might need a different notification. The IF node is your primary tool for creating these branching paths in n8n.",
+        "Most teams do not need a huge routing tree on day one. They just need one business decision: if the call matches a certain condition, do one thing; otherwise do another. In this exercise, you'll take the real `call_analyzed` data from Exercise 2 and use one IF node to split the workflow into two easy-to-understand paths.",
       objectives: [
-        "Add and configure an IF node with multiple conditions",
-        "Create separate workflow branches for different call outcomes",
-        "Use AND / OR logic to combine multiple conditions",
+        "Add and configure one IF node",
+        "Create a TRUE branch and a FALSE branch",
+        "Route based on a custom analysis field from UponAI",
         "Understand true/false output branches",
       ],
       prerequisites: ["Completed Exercises 1 and 2"],
@@ -225,153 +223,143 @@ const EXERCISES = [
         {
           name: "IF Node",
           description:
-            "The IF node evaluates a condition and routes data to one of two outputs: TRUE (left) or FALSE (right). You can chain multiple IF nodes to create complex routing trees. Conditions can compare strings, numbers, booleans, and dates.",
+            "The IF node evaluates one condition and sends the item down either the TRUE branch or the FALSE branch. For beginner workflows, that is often all you need.",
           docUrl: "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.if/",
         },
         {
-          name: "Switch Node",
+          name: "Pinned Data",
           description:
-            "For 3+ branches (like routing by event type), the Switch node is more efficient than chaining IF nodes. It evaluates a value against multiple cases and routes to the matching output.",
-          docUrl: "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.switch/",
+            "Pinned webhook data lets you test both sides of your IF node by editing one field in the sample payload instead of making a new phone call every time.",
         },
       ],
       steps: [
         {
-          title: "Build on your Exercise 2 workflow",
+          title: "Duplicate your Exercise 2 workflow",
           content:
-            "Open your Exercise 2 workflow and save a copy (use **File → Duplicate**). Rename it 'Exercise 3 - Conditional Routing'. You'll add conditional logic after the Set node.",
+            "Open your Exercise 2 workflow and save a copy. Rename it 'Exercise 3 - Conditional Routing'. Keep the Webhook and Set nodes exactly as they are.",
         },
         {
-          title: "Add a Switch node to route by event type",
+          title: "Choose one business field to route on",
           content:
-            "After the Set node, add a **Switch** node. Set **Mode** to **Rules** and configure:\n\n- **Case 1**: Value `{{ $json.event_type }}` equals `call_started` → Output 0\n- **Case 2**: Value `{{ $json.event_type }}` equals `call_ended` → Output 1\n- **Case 3**: Value `{{ $json.event_type }}` equals `call_analyzed` → Output 2\n- **Fallback**: Output 3 (for unexpected events)\n\nThis creates 4 separate branches for each event type.",
-          tip: "Right-click any node and select 'Add Note' to annotate what each branch does. This makes workflows much easier to understand when you revisit them.",
+            "Pick one simple field from your custom analysis data. Good beginner examples are:\n\n- `emergency_call`\n- `sales_call`\n- `roofing_inquiry`\n- `job_request`\n\nFor this lesson, use whichever one your agent already fills in consistently.",
+          tip: "It is better to route on one reliable yes/no field than to build five branches at once.",
         },
         {
-          title: "Add an IF node on the call_ended branch",
+          title: "Add one IF node after the Set node",
           content:
-            "On the `call_ended` output, add an **IF** node to check if the call was successful. Configure the condition:\n\n**Condition 1**: `{{ $json.call_status }}` equals `ended`\n\nThis separates fully completed calls from those that errored.",
+            "After the Set node, add an **IF** node. Configure it to check your chosen field. Example:\n\n- **Value 1**: `{{ $json.emergency_call }}`\n- **Operation**: `is true`\n\nIf your field is text instead of true/false, use `equals` and compare it to the value your agent returns.",
           warning:
-            "Make sure you're referencing the correct data path. If you extracted call_status in the Set node, use `{{ $json.call_status }}`. If not, use `{{ $json.body.call.call_status }}`.",
+            "If the preview says `undefined`, go back to the Set node and make sure you extracted the field correctly first.",
         },
         {
-          title: "Add No Op nodes as placeholders",
+          title: "Label the two outputs clearly",
           content:
-            "Add a **No Operation** node to each branch output. Label them by right-clicking and selecting **Rename**:\n- 'Call Completed'\n- 'Call Failed / Incomplete'\n- 'Analysis Ready'\n- 'Unknown Event'\n\nThis gives you a clear visual map of all possible paths.",
+            "Add a **No Operation** node to each side of the IF node and rename them to something human-readable, such as:\n\n- TRUE branch: `Emergency`\n- FALSE branch: `Non-Emergency`\n\nThese are just placeholders for now, but they make the workflow much easier to follow.",
         },
         {
-          title: "Add duration check to completed calls",
+          title: "Test the TRUE branch with pinned data",
           content:
-            "On the TRUE branch of your IF node (completed calls), add another IF node to check call duration:\n\n**Condition**: `{{ $json.duration_ms }}` is greater than `30000` (30 seconds)\n\nThis separates meaningful calls (>30s) from very short calls that might indicate the caller hung up immediately.",
-          tip: "n8n IF node number comparisons: use 'is greater than', 'is less than', 'is equal to'. For milliseconds to seconds: divide by 1000.",
+            "Use the real webhook data you pinned in Exercise 2. If needed, edit the pinned JSON so your chosen field is set to the TRUE value. Run the workflow and confirm the item goes down the TRUE branch.",
+          tip: "You can edit pinned data directly in n8n. This is the fastest beginner-friendly way to test conditions.",
         },
         {
-          title: "Test all branches",
+          title: "Test the FALSE branch the same way",
           content:
-            "Send test payloads simulating each scenario:\n1. A `call_started` event\n2. A `call_ended` with status 'ended' and duration 60000\n3. A `call_ended` with status 'error'\n4. A `call_analyzed` event\n\nVerify each payload flows to the correct branch by checking the execution view.",
-          code: "# Test completed call\ncurl -X POST YOUR_TEST_URL \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"event\":\"call_ended\",\"call\":{\"call_status\":\"ended\",\"duration_ms\":65000,\"call_id\":\"test-001\"}}'\n\n# Test failed call\ncurl -X POST YOUR_TEST_URL \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"event\":\"call_ended\",\"call\":{\"call_status\":\"error\",\"duration_ms\":2000,\"call_id\":\"test-002\"}}'",
-          codeLanguage: "bash",
+            "Change the same field in the pinned data to the FALSE value and run the workflow again. Confirm the item goes down the FALSE branch. Once both sides work, you are ready to replace the placeholder nodes with real actions.",
         },
       ],
       aiTips: [
-        "Ask AI: 'What are all the possible values for UponAI call_status and disconnect_reason fields?'",
-        "Ask AI: 'When should I use an IF node vs a Switch node in n8n? Give me examples.'",
-        "Use AI to help with expressions: 'Write an n8n expression to check if a call lasted more than 2 minutes and the caller didn't immediately hang up.'",
+        "Ask AI: 'Help me choose the best yes/no field in this UponAI payload to route on first.'",
+        "Ask AI: 'In simple terms, what is the difference between an IF node's TRUE branch and FALSE branch in n8n?'",
+        "Ask AI: 'Write an n8n expression that treats blank, false, and missing values safely.'",
       ],
       testingGuide:
-        "Create a testing checklist: send one payload for each possible call_status value you know about. Verify the routing is correct for each. Document which branch handles which scenario.",
+        "Test both branches using pinned data before you use real calls again. Your goal is simple: prove that one value goes left and the opposite value goes right every time.",
       nextSteps:
-        "Exercise 4 builds on this by adding real actions to each branch — sending notifications, updating records, and triggering follow-up workflows.",
+        "Exercise 4 builds on this by replacing one of those placeholder branches with a real HTML email your team can actually use.",
     },
   },
   {
     slug: "04-sending-notifications",
-    title: "Exercise 7: Sending Notifications After Calls",
+    title: "Exercise 7: Send a Call Summary Email",
     description:
-      "Send email or Slack notifications when calls end. Use the Gmail, Outlook, or Slack nodes to alert your team when important calls complete.",
+      "Send one clean HTML email after an important call. Use the data from your webhook and IF node to build a message your team can read quickly.",
     difficulty: "INTERMEDIATE",
     order: 6,
     tags: "notifications,email,slack,gmail",
     content: {
       overview:
-        "Once you can receive and route call events, the next step is taking action. One of the most common automations is notifying your team when a call ends — especially for high-value calls, complaints, or scheduled appointments. In this exercise, you'll add email and/or Slack notifications to your call_ended workflow.",
+        "Once a call reaches the right branch, the most common next step is sending an email. Your real workflows already do this: collect the call details, drop them into an HTML template, and send the message to the right people. In this exercise, you'll build one version of that pattern in the simplest possible way.",
       objectives: [
-        "Connect n8n to Gmail, Outlook, or SMTP",
-        "Send a formatted notification email with call details",
-        "Connect to Slack and post a message to a channel",
-        "Build a dynamic message using call data in expressions",
+        "Connect n8n to an email provider such as SMTP or Gmail",
+        "Send a formatted HTML email with call details",
+        "Insert webhook values into the subject and body",
+        "Test the email with pinned data before using a real call",
       ],
-      prerequisites: ["Completed Exercises 1–3", "A Gmail account OR a Slack workspace"],
+      prerequisites: ["Completed Exercises 1–3", "An email account or SMTP credential you can use in n8n"],
       estimatedTime: "45–60 minutes",
       tools: [
         {
-          name: "Gmail / Email Node",
+          name: "Send Email / SMTP Node",
           description:
-            "n8n has built-in Gmail, Outlook, and generic SMTP email nodes. They require OAuth2 or app password credentials. For quick testing, use the Send Email node with an SMTP service like Mailgun or SendGrid.",
-          docUrl: "https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.gmail/",
+            "n8n includes email nodes for Gmail, Outlook, and generic SMTP. For beginner workflows, use whichever one you can connect fastest and send one test email successfully.",
+          docUrl: "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.sendemail/",
         },
         {
-          name: "Slack Node",
+          name: "HTML Email Body",
           description:
-            "The Slack node can send messages, create channels, and upload files. You'll need to create a Slack App with the appropriate OAuth scopes (chat:write at minimum) and install it to your workspace.",
-          docUrl: "https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.slack/",
+            "HTML lets you format your email so the team can scan the important details quickly. Keep the first version simple: headings, a small table, the summary, and a recording link.",
         },
         {
-          name: "n8n Credentials",
+          name: "Expressions",
           description:
-            "Credentials are stored securely in n8n and reusable across workflows. Set them up once in Settings → Credentials and reference them in any node. Never hardcode API keys in workflow nodes.",
+            "Expressions like `{{ $json.caller_name }}` pull values from your webhook into the email subject and body. This is how one template works for every call.",
         },
       ],
       steps: [
         {
-          title: "Set up Gmail credentials in n8n",
+          title: "Duplicate your Exercise 3 workflow",
           content:
-            "Go to **Settings → Credentials → Add Credential** and search for **Gmail OAuth2**. Follow the OAuth flow:\n\n1. Go to Google Cloud Console → Create a project\n2. Enable the Gmail API\n3. Create OAuth2 credentials (Web application type)\n4. Add `https://YOUR_N8N_URL/rest/oauth2-credential/callback` as an authorized redirect URI\n5. Copy Client ID and Secret into n8n\n6. Click **Connect** to authenticate",
-          tip: "If you're on n8n Cloud, you can use the built-in OAuth without setting up your own Google Cloud project.",
-          warning:
-            "Use a dedicated 'automation' Google account, not your personal one, for production workflows.",
+            "Open the workflow from Exercise 3 and save a copy. Keep the Webhook, Set node, and IF node. Choose one branch to turn into a real action, such as the TRUE branch for `Emergency` or `Sales` calls.",
         },
         {
-          title: "Add a Gmail node to send call summaries",
+          title: "Add one Send Email node on that branch",
           content:
-            "After the 'Call Completed' branch, add a **Gmail → Send Email** node. Configure:\n\n- **To**: your team email\n- **Subject**: `Call Completed: {{ $json.from_number }}`\n- **Body** (HTML mode):",
-          code: "<h2>Call Summary</h2>\n<table>\n  <tr><td><b>Call ID:</b></td><td>{{ $json.call_id }}</td></tr>\n  <tr><td><b>From:</b></td><td>{{ $json.from_number }}</td></tr>\n  <tr><td><b>Duration:</b></td><td>{{ Math.round($json.duration_ms / 1000) }} seconds</td></tr>\n  <tr><td><b>Status:</b></td><td>{{ $json.call_status }}</td></tr>\n  <tr><td><b>Agent:</b></td><td>{{ $json.agent_id }}</td></tr>\n</table>",
+            "Add a **Send Email** node to the branch you want. Configure:\n\n- **To**: your team email\n- **From**: your automation mailbox\n- **Subject**: `New UponAI Call: {{ $json.caller_name }}`\n- **Email format**: HTML",
+          code: "<h2>Call Summary</h2>\n<table>\n  <tr><td><b>Name:</b></td><td>{{ $json.caller_name }}</td></tr>\n  <tr><td><b>Caller ID:</b></td><td>{{ $json.caller_phone }}</td></tr>\n  <tr><td><b>Reason for Call:</b></td><td>{{ $json.reason_for_call }}</td></tr>\n  <tr><td><b>Emergency:</b></td><td>{{ $json.emergency_call }}</td></tr>\n</table>\n\n<h3>Summary</h3>\n<p>{{ $json.call_summary }}</p>",
           codeLanguage: "html",
         },
         {
-          title: "Set up Slack credentials",
+          title: "Add a recording link and transcript",
           content:
-            "Go to **api.slack.com/apps** and create a new app. Under **OAuth & Permissions**, add the `chat:write` scope. Install the app to your workspace, copy the **Bot User OAuth Token**, and add it as a Slack credential in n8n.",
-          tip: "Create a dedicated #ai-calls Slack channel for these notifications so they don't clutter other channels.",
+            "Expand the HTML body so the email is useful without opening n8n. Add the call recording link and transcript from the webhook payload:\n\n- `{{ $json.body.call.recording_url }}`\n- `{{ $json.body.call.transcript }}`\n\nIf you prefer, extract those in the Set node first and then reference the cleaner field names in your email.",
+          tip: "Do not use JavaScript inside email templates. Many email clients ignore scripts. Keep the HTML simple and static.",
         },
         {
-          title: "Add a Slack node for call alerts",
+          title: "Keep the template easy to scan",
           content:
-            "Add a **Slack → Send a message** node. Configure:\n\n- **Channel**: `#ai-calls` (or your channel name)\n- **Text**: Build a rich notification message with call details from n8n expressions",
-          code: "New Call Completed!\nFrom: {{ $json.from_number }}\nDuration: {{ Math.round($json.duration_ms/1000) }}s\nAgent: {{ $json.agent_id }}\nStatus: {{ $json.call_status }}",
-          codeLanguage: "text",
-          tip: "Use the Slack Block Kit Builder (app.slack.com/block-kit-builder) to design rich message layouts visually, then paste the JSON into the Slack node's Blocks field.",
+            "Follow the same pattern your production workflows use, but keep version one small:\n\n- Client information at the top\n- One short call summary section\n- One recording link\n- Transcript at the bottom\n\nGet one readable email working before you worry about colors, badges, or advanced formatting.",
         },
         {
-          title: "Add error notifications for failed calls",
+          title: "Test with pinned data first",
           content:
-            "On the 'Call Failed' branch, add a separate Slack message with a different tone — use a warning symbol and include the disconnect_reason so your team knows why it failed.",
+            "Run the workflow using your pinned `call_analyzed` data. Send the email to yourself first and confirm the right values appear in the subject and body.",
         },
         {
-          title: "Test end-to-end",
+          title: "Then test with one real call",
           content:
-            "Activate the workflow and make a real test call through UponAI. Within 30 seconds, you should see the call_ended event trigger the notification. Check your email and Slack channel for the messages.",
+            "After the pinned-data version works, unpin the Webhook node and make one real test call. Wait for `call_analyzed` to arrive and confirm the email still sends with real values.",
         },
       ],
       aiTips: [
-        "Ask AI: 'Write a professional email template for notifying a sales team when an AI agent call is completed, including call duration and status.'",
-        "Ask AI: 'Generate a Slack Block Kit JSON layout for a call summary notification card with an action button.'",
-        "Ask AI to troubleshoot: Paste your n8n expression and ask 'Why is this expression showing undefined instead of the value?'",
+        "Ask AI: 'Turn this plain text call summary into a simple HTML email I can paste into n8n.'",
+        "Ask AI: 'Shorten this email so a manager can read it in under 20 seconds.'",
+        "Ask AI to troubleshoot: 'Why is this n8n email expression showing undefined instead of the expected value?'",
       ],
       testingGuide:
-        "Verify that: (1) completed calls send to the correct channels, (2) failed calls send the error notification, (3) very short calls are handled differently, (4) notification formatting looks correct in email and Slack.",
+        "Verify that the subject line is correct, the caller name and reason show up, the summary is readable, and the recording link opens. If the email is too long, shorten the transcript section before adding anything else.",
       nextSteps:
-        "Exercise 5 covers storing call data permanently in Google Sheets or a database — so you can analyze patterns over time.",
+        "Once the email works, you can add more branches later for other call types or log the same call data to Google Sheets.",
     },
   },
   {
