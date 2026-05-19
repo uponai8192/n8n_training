@@ -10,25 +10,43 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
+        magicToken: { label: "Magic Token", type: "text" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        // Magic link token login (partners)
+        if (credentials?.magicToken) {
+          const link = await prisma.magicLink.findUnique({
+            where: { token: credentials.magicToken },
+          });
+          if (!link || link.used || link.expiresAt < new Date()) return null;
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email.toLowerCase() },
-        });
+          const user = await prisma.user.findUnique({
+            where: { email: link.email },
+          });
+          if (!user) return null;
 
-        if (!user) return null;
+          await prisma.magicLink.update({
+            where: { id: link.id },
+            data: { used: true },
+          });
 
-        const isValid = await bcrypt.compare(credentials.password, user.password);
-        if (!isValid) return null;
+          return { id: user.id, email: user.email, name: user.name, role: user.role };
+        }
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-        };
+        // Email + password login (admin)
+        if (credentials?.email && credentials?.password) {
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email.toLowerCase() },
+          });
+          if (!user || !user.password) return null;
+
+          const isValid = await bcrypt.compare(credentials.password, user.password);
+          if (!isValid) return null;
+
+          return { id: user.id, email: user.email, name: user.name, role: user.role };
+        }
+
+        return null;
       },
     }),
   ],

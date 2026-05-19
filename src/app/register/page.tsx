@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, FormEvent, useEffect, Suspense } from "react";
+import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
@@ -11,8 +12,6 @@ function RegisterForm() {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [validatingToken, setValidatingToken] = useState(true);
@@ -23,7 +22,6 @@ function RegisterForm() {
       setValidatingToken(false);
       return;
     }
-
     fetch(`/api/invites/validate?token=${token}`)
       .then((r) => r.json())
       .then((data) => {
@@ -39,22 +37,12 @@ function RegisterForm() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError("");
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
-      return;
-    }
-
     setLoading(true);
 
     const res = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password, token }),
+      body: JSON.stringify({ name, email, token }),
     });
 
     const data = await res.json();
@@ -65,7 +53,20 @@ function RegisterForm() {
       return;
     }
 
-    router.push("/login?registered=1");
+    // Auto sign-in via the returned magic token
+    const result = await signIn("credentials", {
+      magicToken: data.magicToken,
+      redirect: false,
+    });
+
+    if (result?.error) {
+      setError("Account created but sign-in failed. Please sign in manually.");
+      setLoading(false);
+      router.push("/login");
+      return;
+    }
+
+    router.push("/dashboard");
   }
 
   if (validatingToken) {
@@ -76,7 +77,7 @@ function RegisterForm() {
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>
-          Validating invite...
+          Validating invite…
         </div>
       </div>
     );
@@ -92,13 +93,8 @@ function RegisterForm() {
             </svg>
           </div>
           <h2 className="text-2xl font-bold text-white mb-2">Invalid Invite Link</h2>
-          <p className="text-slate-400 mb-6">
-            This invite link is invalid, expired, or has already been used.
-          </p>
-          <Link
-            href="/login"
-            className="inline-flex items-center gap-2 text-orange-400 hover:text-orange-300 font-medium transition"
-          >
+          <p className="text-slate-400 mb-6">This invite link is invalid, expired, or has already been used.</p>
+          <Link href="/login" className="inline-flex items-center gap-2 text-orange-400 hover:text-orange-300 font-medium transition">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
@@ -118,8 +114,8 @@ function RegisterForm() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-white">Create Account</h1>
-          <p className="text-slate-400 mt-1">You have been invited to the platform</p>
+          <h1 className="text-3xl font-bold text-white">You&apos;re invited!</h1>
+          <p className="text-slate-400 mt-1">Set up your account to get started</p>
         </div>
 
         <div className="bg-slate-800 border border-slate-700 rounded-2xl p-8 shadow-2xl">
@@ -127,17 +123,18 @@ function RegisterForm() {
             <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
-            <p className="text-sm text-emerald-400">Valid invite link confirmed</p>
+            <p className="text-sm text-emerald-400">Valid invite — no password needed</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Full name</label>
+              <label className="block text-sm font-medium text-slate-300 mb-1.5">Your full name</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
+                autoFocus
                 className="w-full px-4 py-2.5 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
                 placeholder="Jane Smith"
               />
@@ -151,32 +148,8 @@ function RegisterForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 readOnly={!!email}
-                className="w-full px-4 py-2.5 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition disabled:opacity-70"
+                className="w-full px-4 py-2.5 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition read-only:opacity-60 read-only:cursor-not-allowed"
                 placeholder="you@example.com"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full px-4 py-2.5 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
-                placeholder="Minimum 8 characters"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Confirm password</label>
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                className="w-full px-4 py-2.5 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
-                placeholder="••••••••"
               />
             </div>
 
@@ -194,16 +167,19 @@ function RegisterForm() {
               disabled={loading}
               className="w-full py-2.5 px-4 bg-orange-500 hover:bg-orange-600 disabled:bg-orange-500/50 text-white font-semibold rounded-lg transition focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-slate-800"
             >
-              {loading ? "Creating account..." : "Create account"}
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Creating account & signing in…
+                </span>
+              ) : (
+                "Accept Invite & Sign In"
+              )}
             </button>
           </form>
-
-          <p className="mt-6 text-center text-sm text-slate-400">
-            Already have an account?{" "}
-            <Link href="/login" className="text-orange-400 hover:text-orange-300 font-medium transition">
-              Sign in
-            </Link>
-          </p>
         </div>
       </div>
     </div>
