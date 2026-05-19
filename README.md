@@ -1,36 +1,91 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# N8N + RetellAI Exercise Platform
+
+A training platform for learning n8n automation with RetellAI AI phone agents. Partners work through 10 progressive exercises, from basic webhooks to production-grade automation systems.
 
 ## Getting Started
 
-First, run the development server:
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Configure environment
+
+Copy `.env` and update:
+
+```bash
+cp .env .env.local
+```
+
+Key variables:
+- `NEXTAUTH_SECRET` — Change to a strong random string (32+ chars)
+- `NEXTAUTH_URL` — Your deployment URL (e.g. `http://localhost:3000`)
+- `ADMIN_EMAIL` — Your admin email
+- `ADMIN_PASSWORD` — Your initial admin password
+
+### 3. Set up database
+
+```bash
+npx prisma migrate dev
+node prisma/seed.cjs
+```
+
+This creates the SQLite database and seeds:
+- 1 admin account (credentials from `.env`)
+- 10 progressive exercises
+
+### 4. Start development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Roles
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Admin
+- Login at `/login` with your admin credentials
+- Dashboard at `/admin` shows all partner progress
+- Invite partners at `/admin/invites`
+- View all partners at `/admin/partners`
 
-## Learn More
+### Partners
+- Register via invite link from admin
+- Work through exercises at `/dashboard`
+- Complete exercises in any order
+- Track progress at `/dashboard/progress`
 
-To learn more about Next.js, take a look at the following resources:
+## Exercises
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| # | Title | Difficulty |
+|---|-------|-----------|
+| 1 | Your First Webhook | Beginner |
+| 2 | Receiving RetellAI Call Events | Beginner |
+| 3 | Conditional Routing with IF Nodes | Beginner |
+| 4 | Sending Notifications After Calls | Intermediate |
+| 5 | Logging Call Data to Google Sheets | Intermediate |
+| 6 | Calling External APIs & CRM Updates | Intermediate |
+| 7 | AI-Powered Transcript Analysis | Advanced |
+| 8 | Error Handling & Retry Logic | Advanced |
+| 9 | Dynamic RetellAI Agent Updates | Advanced |
+| 10 | Production-Ready RetellAI Platform | Expert |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Database
 
-## Deploy on Vercel
+Uses SQLite with Prisma ORM. Database file: `dev.db`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm run db:seed       # Reseed exercises
+npm run db:studio     # Open Prisma Studio
+npm run db:push       # Push schema changes
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Tech Stack
+
+- **Next.js 16** (App Router, TypeScript)
+- **Tailwind CSS** — Styling
+- **Prisma 7** + **SQLite** — Database
+- **NextAuth v4** — Authentication
+- **better-sqlite3** — SQLite driver adapter

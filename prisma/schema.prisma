@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  name        String
+  password    String
+  role        String   @default("PARTNER")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  completions ExerciseCompletion[]
+}
+
+model Invite {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+}
+
+model Exercise {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String
+  difficulty  String
+  order       Int
+  content     String
+  tags        String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  completions ExerciseCompletion[]
+}
+
+model ExerciseCompletion {
+  id          String   @id @default(cuid())
+  userId      String
+  exerciseId  String
+  completedAt DateTime @default(now())
+  notes       String   @default("")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercise    Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, exerciseId])
+}
