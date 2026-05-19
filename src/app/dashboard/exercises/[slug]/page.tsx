@@ -7,9 +7,7 @@ import { Navbar } from "@/components/Navbar";
 import { DifficultyBadge } from "@/components/DifficultyBadge";
 import { ExerciseClient } from "./ExerciseClient";
 
-export async function generateStaticParams() {
-  return [];
-}
+export const dynamic = "force-dynamic";
 
 export default async function ExercisePage({
   params,
