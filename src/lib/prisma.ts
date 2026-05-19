@@ -1,7 +1,8 @@
 import { PrismaClient } from "@prisma/client";
+import { getDatabaseUrl } from "./runtime-config";
 
 function createPrismaClient(): PrismaClient {
-  const dbUrl = process.env.DATABASE_URL ?? "file:./dev.db";
+  const dbUrl = getDatabaseUrl();
 
   // Turso / libSQL (production on Vercel)
   if (dbUrl.startsWith("libsql://") || dbUrl.startsWith("https://")) {

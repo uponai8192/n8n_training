@@ -1,8 +1,16 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import {
+  RuntimeConfigError,
+  assertMagicLinkEmailConfig,
+  getAppBaseUrl,
+  isProduction,
+} from "@/lib/runtime-config";
 import crypto from "crypto";
 
 async function sendMagicLinkEmail(email: string, url: string) {
+  assertMagicLinkEmailConfig();
+
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.log(`\n🔗 Magic Link for ${email}:\n   ${url}\n`);
@@ -70,18 +78,23 @@ export async function POST(req: Request) {
       data: { email: normalizedEmail, token, expiresAt },
     });
 
-    const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3001";
+    const baseUrl = getAppBaseUrl(req);
     const magicUrl = `${baseUrl}/auth/magic?token=${token}`;
 
     await sendMagicLinkEmail(normalizedEmail, magicUrl);
 
-    const isDev = process.env.NODE_ENV === "development";
+    const isDev = !isProduction();
     return NextResponse.json({
       success: true,
       // Return the link in dev mode so you can click it without email setup
       devLink: isDev ? magicUrl : undefined,
     });
   } catch (error) {
+    if (error instanceof RuntimeConfigError) {
+      console.error("Magic link configuration error:", error.message);
+      return NextResponse.json({ error: error.message }, { status: 503 });
+    }
+
     console.error("Magic link error:", error);
     return NextResponse.json({ error: "Failed to send magic link." }, { status: 500 });
   }
