@@ -32,7 +32,7 @@ export function Navbar() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <span className="font-bold text-white text-sm hidden sm:block">N8N + RetellAI</span>
+            <span className="font-bold text-white text-sm hidden sm:block">N8N + UponAI</span>
           </Link>
 
           {/* Nav links */}

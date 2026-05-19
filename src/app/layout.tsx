@@ -14,9 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "N8N + RetellAI Exercise Platform",
+  title: "N8N + UponAI Exercise Platform",
   description:
-    "Learn to build powerful automations with n8n and RetellAI through hands-on, progressive exercises.",
+    "Learn to build powerful automations with n8n and UponAI through hands-on, progressive exercises.",
 };
 
 export default function RootLayout({

@@ -14,13 +14,13 @@ const EXERCISES = [
     slug: "01-your-first-webhook",
     title: "Exercise 1: Your First Webhook",
     description:
-      "Set up your first n8n webhook node and receive a test POST request. Learn how webhooks work as the entry point for all RetellAI automations.",
+      "Set up your first n8n webhook node and receive a test POST request. Learn how webhooks work as the entry point for all UponAI automations.",
     difficulty: "BEGINNER",
     order: 1,
     tags: "webhook,basics,n8n",
     content: {
       overview:
-        "Webhooks are the backbone of all RetellAI automation. Every time a call starts, ends, or a custom event fires, RetellAI sends a POST request to a URL you define. In this exercise, you'll create your first webhook in n8n and learn to capture that incoming data.",
+        "Webhooks are the backbone of all UponAI automation. Every time a call starts, ends, or a custom event fires, UponAI sends a POST request to a URL you define. In this exercise, you'll create your first webhook in n8n and learn to capture that incoming data.",
       objectives: [
         "Create and activate a Webhook node in n8n",
         "Understand the difference between test and production webhook URLs",
@@ -97,35 +97,35 @@ const EXERCISES = [
       ],
       aiTips: [
         "Ask ChatGPT or Claude: 'Explain how n8n webhook URLs work and the difference between test and production mode.'",
-        "Use AI to generate test JSON payloads: 'Generate a realistic RetellAI call_ended webhook payload with all the standard fields.'",
+        "Use AI to generate test JSON payloads: 'Generate a realistic UponAI call_ended webhook payload with all the standard fields.'",
         "If you're stuck: paste the n8n error message into an AI chat for instant troubleshooting help.",
       ],
       testingGuide:
         "Send 3 different POST requests with different JSON bodies. Verify that all data appears correctly in n8n's data panel. Try sending a request with nested objects and arrays to understand how n8n displays complex data.",
       nextSteps:
-        "Now that you can receive webhook data, Exercise 2 will show you how to receive and parse real RetellAI call events, understanding the specific fields RetellAI sends.",
+        "Now that you can receive webhook data, Exercise 2 will show you how to receive and parse real UponAI call events, understanding the specific fields UponAI sends.",
     },
   },
   {
-    slug: "02-retellai-call-events",
-    title: "Exercise 2: Receiving RetellAI Call Events",
+    slug: "02-uponai-call-events",
+    title: "Exercise 2: Receiving UponAI Call Events",
     description:
-      "Configure your n8n webhook to receive real RetellAI call lifecycle events — call_started, call_ended, and call_analyzed. Learn the RetellAI webhook payload structure.",
+      "Configure your n8n webhook to receive real UponAI call lifecycle events — call_started, call_ended, and call_analyzed. Learn the UponAI webhook payload structure.",
     difficulty: "BEGINNER",
     order: 2,
-    tags: "retellai,webhook,call-events",
+    tags: "uponai,webhook,call-events",
     content: {
       overview:
-        "RetellAI sends webhook events at key moments in every call's lifecycle. Understanding these events and their data structure is essential before you can build any automation. In this exercise, you'll configure a RetellAI agent to send events to your n8n webhook and inspect the real payload structure.",
+        "UponAI sends webhook events at key moments in every call's lifecycle. Understanding these events and their data structure is essential before you can build any automation. In this exercise, you'll configure a UponAI agent to send events to your n8n webhook and inspect the real payload structure.",
       objectives: [
-        "Configure a RetellAI agent webhook URL in the RetellAI dashboard",
+        "Configure a UponAI agent webhook URL in the UponAI dashboard",
         "Understand the three primary call events: call_started, call_ended, call_analyzed",
-        "Parse and display key fields from the RetellAI payload",
+        "Parse and display key fields from the UponAI payload",
         "Use the Set node to extract specific fields",
       ],
       prerequisites: [
         "Completed Exercise 1",
-        "A RetellAI account with at least one agent configured",
+        "A UponAI account with at least one agent configured",
         "Your n8n webhook URL ready",
       ],
       estimatedTime: "30–45 minutes",
@@ -133,39 +133,39 @@ const EXERCISES = [
         {
           name: "Set Node",
           description:
-            "The Set node lets you create new fields, transform existing values, or restructure your data. It's one of the most-used nodes in n8n. Use it to extract specific fields from the RetellAI payload into clean, named variables for the rest of your workflow.",
+            "The Set node lets you create new fields, transform existing values, or restructure your data. It's one of the most-used nodes in n8n. Use it to extract specific fields from the UponAI payload into clean, named variables for the rest of your workflow.",
           docUrl: "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.set/",
         },
         {
-          name: "RetellAI Webhook Events",
+          name: "UponAI Webhook Events",
           description:
-            "RetellAI fires webhooks for: call_started (when a call connects), call_ended (when a call disconnects), and call_analyzed (after AI analysis completes — usually 30–60 seconds after call end). The call_analyzed event contains transcript and sentiment data.",
-          docUrl: "https://docs.retellai.com/api-references/webhook",
+            "UponAI fires webhooks for: call_started (when a call connects), call_ended (when a call disconnects), and call_analyzed (after AI analysis completes — usually 30–60 seconds after call end). The call_analyzed event contains transcript and sentiment data.",
+          docUrl: "https://docs.uponai.com/api-references/webhook",
         },
       ],
       steps: [
         {
-          title: "Create a new workflow for RetellAI events",
+          title: "Create a new workflow for UponAI events",
           content:
-            "Create a new n8n workflow called 'Exercise 2 - RetellAI Events'. Add a Webhook node with HTTP Method set to **POST**. This time, set the path to something meaningful like `retellai-events`.",
+            "Create a new n8n workflow called 'Exercise 2 - UponAI Events'. Add a Webhook node with HTTP Method set to **POST**. This time, set the path to something meaningful like `uponai-events`.",
         },
         {
-          title: "Configure the webhook in RetellAI",
+          title: "Configure the webhook in UponAI",
           content:
-            "In your RetellAI dashboard, go to **Agents** → select your agent → **Webhooks** tab. Enter your n8n **Production URL** in the webhook field. Enable all event types: `call_started`, `call_ended`, `call_analyzed`.\n\nActivate your n8n workflow by toggling it ON (top-right of the canvas) before the next step.",
+            "In your UponAI dashboard, go to **Agents** → select your agent → **Webhooks** tab. Enter your n8n **Production URL** in the webhook field. Enable all event types: `call_started`, `call_ended`, `call_analyzed`.\n\nActivate your n8n workflow by toggling it ON (top-right of the canvas) before the next step.",
           warning:
-            "RetellAI sends webhooks to the Production URL, not the Test URL. Make sure your workflow is **activated** before making a test call.",
+            "UponAI sends webhooks to the Production URL, not the Test URL. Make sure your workflow is **activated** before making a test call.",
         },
         {
-          title: "Make a test call to your RetellAI agent",
+          title: "Make a test call to your UponAI agent",
           content:
-            "Use RetellAI's built-in call testing in the dashboard, or call your agent's phone number directly. Keep the call brief (10–30 seconds). You should see events arriving in your n8n workflow execution history.",
+            "Use UponAI's built-in call testing in the dashboard, or call your agent's phone number directly. Keep the call brief (10–30 seconds). You should see events arriving in your n8n workflow execution history.",
           tip: "In n8n, go to **Executions** in the left sidebar to see all triggered workflow runs. Click any execution to inspect the data.",
         },
         {
           title: "Inspect the call_started payload",
           content:
-            "Open an execution triggered by `call_started`. The RetellAI payload looks like this:",
+            "Open an execution triggered by `call_started`. The UponAI payload looks like this:",
           code: '{\n  "event": "call_started",\n  "call": {\n    "call_id": "call_abc123",\n    "agent_id": "agent_xyz",\n    "call_status": "ongoing",\n    "start_timestamp": 1704067200000,\n    "from_number": "+15551234567",\n    "to_number": "+15559876543",\n    "direction": "inbound",\n    "metadata": {}\n  }\n}',
           codeLanguage: "json",
         },
@@ -185,15 +185,15 @@ const EXERCISES = [
         {
           title: "Test with a simulated payload",
           content:
-            "Use the Test URL to simulate a RetellAI event without making a real call. Click **Listen for test event** on your Webhook node, then send this POST request:",
+            "Use the Test URL to simulate a UponAI event without making a real call. Click **Listen for test event** on your Webhook node, then send this POST request:",
           code: "curl -X POST YOUR_TEST_URL \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"event\": \"call_ended\",\n    \"call\": {\n      \"call_id\": \"test-001\",\n      \"agent_id\": \"agent-demo\",\n      \"call_status\": \"ended\",\n      \"duration_ms\": 45000,\n      \"disconnect_reason\": \"user_hangup\",\n      \"from_number\": \"+15551234567\"\n    }\n  }'",
           codeLanguage: "bash",
         },
       ],
       aiTips: [
-        "Ask AI: 'What does each RetellAI disconnect_reason value mean and when would I use it in a conditional workflow?'",
+        "Ask AI: 'What does each UponAI disconnect_reason value mean and when would I use it in a conditional workflow?'",
         "Ask AI: 'Write an n8n expression to convert duration_ms to a human-readable format like 1m 30s'",
-        "Use Claude to understand the full RetellAI API: 'Summarize all webhook event types available in RetellAI and what data each one contains.'",
+        "Use Claude to understand the full UponAI API: 'Summarize all webhook event types available in UponAI and what data each one contains.'",
       ],
       testingGuide:
         "Make 3 test calls: one short (under 30s), one medium (1–2 min), and one where you hang up immediately. Compare the payloads. Note how `duration_ms` and `disconnect_reason` differ between calls.",
@@ -273,7 +273,7 @@ const EXERCISES = [
         },
       ],
       aiTips: [
-        "Ask AI: 'What are all the possible values for RetellAI call_status and disconnect_reason fields?'",
+        "Ask AI: 'What are all the possible values for UponAI call_status and disconnect_reason fields?'",
         "Ask AI: 'When should I use an IF node vs a Switch node in n8n? Give me examples.'",
         "Use AI to help with expressions: 'Write an n8n expression to check if a call lasted more than 2 minutes and the caller didn't immediately hang up.'",
       ],
@@ -359,7 +359,7 @@ const EXERCISES = [
         {
           title: "Test end-to-end",
           content:
-            "Activate the workflow and make a real test call through RetellAI. Within 30 seconds, you should see the call_ended event trigger the notification. Check your email and Slack channel for the messages.",
+            "Activate the workflow and make a real test call through UponAI. Within 30 seconds, you should see the call_ended event trigger the notification. Check your email and Slack channel for the messages.",
         },
       ],
       aiTips: [
@@ -377,7 +377,7 @@ const EXERCISES = [
     slug: "05-logging-to-google-sheets",
     title: "Exercise 5: Logging Call Data to Google Sheets",
     description:
-      "Automatically log every RetellAI call to a Google Sheet for tracking and analysis. Learn to append rows, handle duplicates, and structure your data for reporting.",
+      "Automatically log every UponAI call to a Google Sheet for tracking and analysis. Learn to append rows, handle duplicates, and structure your data for reporting.",
     difficulty: "INTERMEDIATE",
     order: 5,
     tags: "google-sheets,logging,data,reporting",
@@ -410,7 +410,7 @@ const EXERCISES = [
         {
           title: "Create your Google Sheet",
           content:
-            "Create a new Google Sheet called 'RetellAI Call Log'. Add these column headers in Row 1:\n\n`call_id | agent_id | from_number | to_number | direction | call_status | duration_seconds | disconnect_reason | start_time | end_time | date_logged`",
+            "Create a new Google Sheet called 'UponAI Call Log'. Add these column headers in Row 1:\n\n`call_id | agent_id | from_number | to_number | direction | call_status | duration_seconds | disconnect_reason | start_time | end_time | date_logged`",
           tip: "Bold the header row and freeze it (View → Freeze → 1 row) so it stays visible when scrolling.",
         },
         {
@@ -428,7 +428,7 @@ const EXERCISES = [
         {
           title: "Handle the call_analyzed event to add transcript",
           content:
-            "When RetellAI sends `call_analyzed`, it includes the call transcript and sentiment data. Add a second Google Sheets node on the `call_analyzed` branch with **Update Row** operation — match on `call_id` and add new columns:\n\n`transcript | sentiment | call_summary`",
+            "When UponAI sends `call_analyzed`, it includes the call transcript and sentiment data. Add a second Google Sheets node on the `call_analyzed` branch with **Update Row** operation — match on `call_id` and add new columns:\n\n`transcript | sentiment | call_summary`",
           tip: "The transcript is usually at `$json.body.call.transcript` — it's a long string of the full conversation.",
         },
         {
@@ -465,7 +465,7 @@ const EXERCISES = [
     tags: "http-request,api,crm,hubspot,airtable",
     content: {
       overview:
-        "The HTTP Request node is n8n's universal API connector — if a service has an API, you can call it. In this exercise, you'll learn to authenticate and call external APIs, specifically to update a CRM (HubSpot, Airtable, or your system of choice) when a RetellAI call completes.",
+        "The HTTP Request node is n8n's universal API connector — if a service has an API, you can call it. In this exercise, you'll learn to authenticate and call external APIs, specifically to update a CRM (HubSpot, Airtable, or your system of choice) when a UponAI call completes.",
       objectives: [
         "Configure the HTTP Request node with authentication",
         "Make GET requests to look up existing records",
@@ -533,7 +533,7 @@ const EXERCISES = [
       aiTips: [
         "Ask AI: 'Show me the HubSpot API call to create an engagement (call log) on a contact record and associate it with a specific deal.'",
         "Ask AI: 'My HTTP Request node is returning a 401 error. What are the most common causes and how do I fix them?'",
-        "Use AI to map fields: 'I have a RetellAI call object with these fields. Map them to HubSpot contact properties for a CRM integration.'",
+        "Use AI to map fields: 'I have a UponAI call object with these fields. Map them to HubSpot contact properties for a CRM integration.'",
       ],
       testingGuide:
         "Test with: (1) a phone number that exists in your CRM, (2) a new phone number not in your CRM, (3) an invalid phone number format. Verify each case is handled correctly.",
@@ -551,7 +551,7 @@ const EXERCISES = [
     tags: "ai,openai,transcript,analysis,llm",
     content: {
       overview:
-        "RetellAI gives you raw transcripts — AI can turn them into insights. In this exercise, you'll pipe the call_analyzed transcript through an LLM (OpenAI or Anthropic Claude) to extract structured data: customer sentiment, key topics discussed, action items, and a concise summary.",
+        "UponAI gives you raw transcripts — AI can turn them into insights. In this exercise, you'll pipe the call_analyzed transcript through an LLM (OpenAI or Anthropic Claude) to extract structured data: customer sentiment, key topics discussed, action items, and a concise summary.",
       objectives: [
         "Set up OpenAI or Anthropic credentials in n8n",
         "Use the AI Message node to send a prompt with call transcript",
@@ -635,7 +635,7 @@ const EXERCISES = [
     tags: "error-handling,retry,production,reliability",
     content: {
       overview:
-        "Production workflows fail. APIs go down, rate limits get hit, network timeouts occur. Workflows without error handling silently drop data. In this exercise, you'll add comprehensive error handling to your RetellAI workflows so no call data is ever lost, and your team is alerted when something goes wrong.",
+        "Production workflows fail. APIs go down, rate limits get hit, network timeouts occur. Workflows without error handling silently drop data. In this exercise, you'll add comprehensive error handling to your UponAI workflows so no call data is ever lost, and your team is alerted when something goes wrong.",
       objectives: [
         "Configure node-level error handling and retry settings",
         "Create an Error Trigger workflow to catch all failures",
@@ -681,7 +681,7 @@ const EXERCISES = [
         {
           title: "Enable the Error Trigger for your main workflows",
           content:
-            "For the Error Trigger to catch errors from a workflow, that workflow must have 'Error Workflow' set in its Settings. Go to your RetellAI workflow → Settings (gear icon) → **Error Workflow** → select your 'Error Handler' workflow.",
+            "For the Error Trigger to catch errors from a workflow, that workflow must have 'Error Workflow' set in its Settings. Go to your UponAI workflow → Settings (gear icon) → **Error Workflow** → select your 'Error Handler' workflow.",
           warning:
             "You need to activate both workflows — the main workflow AND the Error Handler — for error catching to work.",
         },
@@ -704,37 +704,37 @@ const EXERCISES = [
       testingGuide:
         "Run through all error scenarios: API timeout, invalid credentials, network error, rate limiting. Verify you receive Slack notifications for each, and that the dead-letter queue captures the raw payload.",
       nextSteps:
-        "Exercise 9 covers dynamic RetellAI agent updates — changing agent prompts, voices, and behavior in real-time based on business logic using the RetellAI API.",
+        "Exercise 9 covers dynamic UponAI agent updates — changing agent prompts, voices, and behavior in real-time based on business logic using the UponAI API.",
     },
   },
   {
     slug: "09-dynamic-agent-updates",
-    title: "Exercise 9: Dynamic RetellAI Agent Updates",
+    title: "Exercise 9: Dynamic UponAI Agent Updates",
     description:
-      "Use the RetellAI API to dynamically update agent configurations — change prompts, voices, and variables in real-time based on business rules, time of day, or CRM data.",
+      "Use the UponAI API to dynamically update agent configurations — change prompts, voices, and variables in real-time based on business rules, time of day, or CRM data.",
     difficulty: "ADVANCED",
     order: 9,
-    tags: "retellai-api,dynamic,agent-config,outbound",
+    tags: "uponai-api,dynamic,agent-config,outbound",
     content: {
       overview:
-        "RetellAI isn't just a webhook source — it's also an API you can call. You can programmatically update your agent's prompt, change the voice, inject custom variables into conversations, and even create new agents on the fly. This is where n8n becomes a powerful control plane for your AI agents.",
+        "UponAI isn't just a webhook source — it's also an API you can call. You can programmatically update your agent's prompt, change the voice, inject custom variables into conversations, and even create new agents on the fly. This is where n8n becomes a powerful control plane for your AI agents.",
       objectives: [
-        "Authenticate with the RetellAI Management API",
+        "Authenticate with the UponAI Management API",
         "Update an agent's prompt dynamically via API",
         "Inject custom variables into a call before it connects",
         "Create a scheduled workflow to update agents based on time/business rules",
       ],
       prerequisites: [
         "Completed Exercises 1–8",
-        "RetellAI API key (from the RetellAI dashboard)",
+        "UponAI API key (from the UponAI dashboard)",
       ],
       estimatedTime: "75–90 minutes",
       tools: [
         {
-          name: "RetellAI API",
+          name: "UponAI API",
           description:
-            "RetellAI's REST API lets you create/update/delete agents, initiate calls programmatically, and manage phone numbers. The base URL is https://api.retellai.com. Authenticate with your API key as a Bearer token.",
-          docUrl: "https://docs.retellai.com/api-references/agent/get-agent",
+            "UponAI's REST API lets you create/update/delete agents, initiate calls programmatically, and manage phone numbers. The base URL is https://api.uponai.com. Authenticate with your API key as a Bearer token.",
+          docUrl: "https://docs.uponai.com/api-references/agent/get-agent",
         },
         {
           name: "Schedule Trigger Node",
@@ -745,15 +745,15 @@ const EXERCISES = [
       ],
       steps: [
         {
-          title: "Get your RetellAI API key",
+          title: "Get your UponAI API key",
           content:
-            "In the RetellAI dashboard, go to **API Keys** (usually under your account/settings menu). Create a new API key and copy it. Store it in n8n as a **Header Auth** credential:\n\n- Name: RetellAI API\n- Header Name: Authorization\n- Header Value: Bearer YOUR_API_KEY",
+            "In the UponAI dashboard, go to **API Keys** (usually under your account/settings menu). Create a new API key and copy it. Store it in n8n as a **Header Auth** credential:\n\n- Name: UponAI API\n- Header Name: Authorization\n- Header Value: Bearer YOUR_API_KEY",
         },
         {
           title: "Fetch your current agent configuration",
           content:
-            "Add an HTTP Request node to get your agent's current configuration. You'll need your Agent ID from the RetellAI dashboard:",
-          code: "URL: https://api.retellai.com/get-agent/YOUR_AGENT_ID\nMethod: GET\nAuthentication: RetellAI API (Header Auth)",
+            "Add an HTTP Request node to get your agent's current configuration. You'll need your Agent ID from the UponAI dashboard:",
+          code: "URL: https://api.uponai.com/get-agent/YOUR_AGENT_ID\nMethod: GET\nAuthentication: UponAI API (Header Auth)",
           codeLanguage: "text",
           tip: "Always fetch the current config before updating — you may only want to change one field and keep everything else the same.",
         },
@@ -768,49 +768,49 @@ const EXERCISES = [
           title: "Update the agent prompt based on mode",
           content:
             "Add a Switch node on the `mode` field, then an HTTP Request node for each mode to update the agent:",
-          code: 'URL: https://api.retellai.com/update-agent/YOUR_AGENT_ID\nMethod: PATCH\nAuthentication: RetellAI API\nBody: {\n  "agent_prompt": "{{ $json.prompt }}",\n  "agent_name": "{{ $json.mode === \'business_hours\' ? \'Alex\' : \'After Hours Bot\' }}"\n}',
+          code: 'URL: https://api.uponai.com/update-agent/YOUR_AGENT_ID\nMethod: PATCH\nAuthentication: UponAI API\nBody: {\n  "agent_prompt": "{{ $json.prompt }}",\n  "agent_name": "{{ $json.mode === \'business_hours\' ? \'Alex\' : \'After Hours Bot\' }}"\n}',
           codeLanguage: "text",
           tip: "Keep your prompts in a Google Sheet or Airtable so non-technical team members can update them without touching n8n.",
         },
         {
           title: "Inject dynamic variables into outbound calls",
           content:
-            "RetellAI supports dynamic variables that get injected into the agent's prompt at call time. When initiating an outbound call via API, pass variables:",
-          code: 'URL: https://api.retellai.com/create-phone-call\nMethod: POST\nBody: {\n  "from_number": "+15551234567",\n  "to_number": "{{ $json.customer_phone }}",\n  "agent_id": "YOUR_AGENT_ID",\n  "retell_llm_dynamic_variables": {\n    "customer_name": "{{ $json.customer_name }}",\n    "appointment_time": "{{ $json.appointment_time }}",\n    "rep_name": "{{ $json.assigned_rep }}"\n  }\n}',
+            "UponAI supports dynamic variables that get injected into the agent's prompt at call time. When initiating an outbound call via API, pass variables:",
+          code: 'URL: https://api.uponai.com/create-phone-call\nMethod: POST\nBody: {\n  "from_number": "+15551234567",\n  "to_number": "{{ $json.customer_phone }}",\n  "agent_id": "YOUR_AGENT_ID",\n  "upon_llm_dynamic_variables": {\n    "customer_name": "{{ $json.customer_name }}",\n    "appointment_time": "{{ $json.appointment_time }}",\n    "rep_name": "{{ $json.assigned_rep }}"\n  }\n}',
           codeLanguage: "json",
         },
         {
           title: "Build an outbound call trigger from Google Sheets",
           content:
-            "Create a workflow that reads a Google Sheet of outbound call targets and triggers RetellAI calls for each row. This enables bulk outbound AI calling campaigns from a spreadsheet.",
+            "Create a workflow that reads a Google Sheet of outbound call targets and triggers UponAI calls for each row. This enables bulk outbound AI calling campaigns from a spreadsheet.",
           warning:
             "Always follow TCPA regulations for outbound calling. Ensure you have proper consent before making automated outbound calls.",
         },
       ],
       aiTips: [
-        "Ask AI: 'Write an optimized RetellAI agent prompt for a business hours greeting that is warm and professional, with after-hours instructions.'",
-        "Ask AI: 'How should I structure dynamic variables in a RetellAI agent prompt so they can be personalized per call?'",
+        "Ask AI: 'Write an optimized UponAI agent prompt for a business hours greeting that is warm and professional, with after-hours instructions.'",
+        "Ask AI: 'How should I structure dynamic variables in a UponAI agent prompt so they can be personalized per call?'",
         "Ask AI: 'What are best practices for A/B testing different AI agent prompts to measure which performs better?'",
       ],
       testingGuide:
         "Test the schedule trigger during business hours and outside business hours. Verify the agent prompt changes correctly. Make a test call in each mode to confirm the agent behavior matches the expected prompt.",
       nextSteps:
-        "The final exercise brings everything together in a complete, production-ready end-to-end RetellAI automation platform with all the patterns from Exercises 1–9.",
+        "The final exercise brings everything together in a complete, production-ready end-to-end UponAI automation platform with all the patterns from Exercises 1–9.",
     },
   },
   {
     slug: "10-production-ready-platform",
-    title: "Exercise 10: Production-Ready RetellAI Platform",
+    title: "Exercise 10: Production-Ready UponAI Platform",
     description:
-      "Build a complete, production-grade RetellAI automation platform combining all patterns: inbound handling, outbound campaigns, AI analysis, CRM sync, notifications, error handling, and monitoring.",
+      "Build a complete, production-grade UponAI automation platform combining all patterns: inbound handling, outbound campaigns, AI analysis, CRM sync, notifications, error handling, and monitoring.",
     difficulty: "EXPERT",
     order: 10,
     tags: "production,advanced,architecture,monitoring,complete",
     content: {
       overview:
-        "This is the capstone exercise. You'll architect and build a complete RetellAI automation system using everything learned in Exercises 1–9. This is designed to mirror a real production deployment — the kind of system you'd build for a paying client. The focus is on reliability, scalability, and maintainability.",
+        "This is the capstone exercise. You'll architect and build a complete UponAI automation system using everything learned in Exercises 1–9. This is designed to mirror a real production deployment — the kind of system you'd build for a paying client. The focus is on reliability, scalability, and maintainability.",
       objectives: [
-        "Design a multi-workflow architecture for a RetellAI use case",
+        "Design a multi-workflow architecture for a UponAI use case",
         "Implement a complete inbound + outbound call automation system",
         "Build a monitoring dashboard using n8n executions + Google Sheets",
         "Document your workflows for handoff to clients",
@@ -846,8 +846,8 @@ const EXERCISES = [
         {
           title: "Implement webhook signature verification",
           content:
-            "Add security to your webhook with signature verification. RetellAI sends an `x-retell-signature` header. Verify it with a Code node at the very start of your workflow to prevent unauthorized requests.",
-          code: "const crypto = require('crypto');\n\nconst payload = JSON.stringify($input.first().json.body);\nconst signature = $input.first().json.headers['x-retell-signature'];\nconst secret = $env.RETELL_WEBHOOK_SECRET;\n\nconst expectedSig = crypto\n  .createHmac('sha256', secret)\n  .update(payload)\n  .digest('hex');\n\nif (signature !== 'sha256=' + expectedSig) {\n  throw new Error('Invalid webhook signature — potential security breach');\n}\n\nreturn $input.all();",
+            "Add security to your webhook with signature verification. UponAI sends an `x-upon-signature` header. Verify it with a Code node at the very start of your workflow to prevent unauthorized requests.",
+          code: "const crypto = require('crypto');\n\nconst payload = JSON.stringify($input.first().json.body);\nconst signature = $input.first().json.headers['x-upon-signature'];\nconst secret = $env.UPONAI_WEBHOOK_SECRET;\n\nconst expectedSig = crypto\n  .createHmac('sha256', secret)\n  .update(payload)\n  .digest('hex');\n\nif (signature !== 'sha256=' + expectedSig) {\n  throw new Error('Invalid webhook signature — potential security breach');\n}\n\nreturn $input.all();",
           codeLanguage: "javascript",
           warning:
             "Never skip signature verification in production. It prevents attackers from sending fake call events to your workflow.",
@@ -855,13 +855,13 @@ const EXERCISES = [
         {
           title: "Build the Router workflow",
           content:
-            "Create a 'RetellAI Router' workflow. After signature verification, use a Switch node to route to sub-workflows using the Execute Workflow node. Each event type gets its own dedicated workflow.",
-          tip: "The 'Execute Workflow' node in async mode (fire-and-forget) allows your router to respond to RetellAI's webhook instantly (within the 5-second timeout), while the actual processing happens asynchronously.",
+            "Create a 'UponAI Router' workflow. After signature verification, use a Switch node to route to sub-workflows using the Execute Workflow node. Each event type gets its own dedicated workflow.",
+          tip: "The 'Execute Workflow' node in async mode (fire-and-forget) allows your router to respond to UponAI's webhook instantly (within the 5-second timeout), while the actual processing happens asynchronously.",
         },
         {
           title: "Implement idempotency",
           content:
-            "RetellAI may send the same webhook twice in some edge cases. Add idempotency to prevent duplicate processing. Use Google Sheets or a database to track processed call_ids:\n\n1. Check if call_id is in 'Processed Calls' sheet\n2. If found: skip processing (already done)\n3. If not found: process and then add call_id to the sheet",
+            "UponAI may send the same webhook twice in some edge cases. Add idempotency to prevent duplicate processing. Use Google Sheets or a database to track processed call_ids:\n\n1. Check if call_id is in 'Processed Calls' sheet\n2. If found: skip processing (already done)\n3. If not found: process and then add call_id to the sheet",
         },
         {
           title: "Build a monitoring dashboard",
@@ -877,18 +877,18 @@ const EXERCISES = [
         {
           title: "Go live checklist",
           content:
-            "Before activating for production:\n\n- All workflows activated\n- Error Handler workflow active and tested\n- Webhook signature verification enabled\n- RetellAI webhook URL updated to production n8n URL\n- All credentials use production API keys\n- Monitoring dashboard working\n- Team notified of Slack channel for alerts\n- Workflow documentation complete\n- All workflows exported and backed up\n- Test call made and all events processed correctly",
+            "Before activating for production:\n\n- All workflows activated\n- Error Handler workflow active and tested\n- Webhook signature verification enabled\n- UponAI webhook URL updated to production n8n URL\n- All credentials use production API keys\n- Monitoring dashboard working\n- Team notified of Slack channel for alerts\n- Workflow documentation complete\n- All workflows exported and backed up\n- Test call made and all events processed correctly",
         },
       ],
       aiTips: [
-        "Use AI as your architecture reviewer: 'Review this n8n workflow architecture for a RetellAI integration and identify any reliability or security concerns.'",
+        "Use AI as your architecture reviewer: 'Review this n8n workflow architecture for a UponAI integration and identify any reliability or security concerns.'",
         "Ask AI to write your documentation: 'Write technical runbook documentation for this automation system, including troubleshooting guides for common failures.'",
         "Ask AI for optimization: 'How can I reduce the latency of my n8n webhook processing from 3 seconds to under 1 second?'",
       ],
       testingGuide:
-        "Full end-to-end test: make 5 real calls through your RetellAI agent, verify each event is processed correctly, CRM is updated, notifications sent, Google Sheet logged, and no errors in the Error Handler. Then test failure scenarios.",
+        "Full end-to-end test: make 5 real calls through your UponAI agent, verify each event is processed correctly, CRM is updated, notifications sent, Google Sheet logged, and no errors in the Error Handler. Then test failure scenarios.",
       nextSteps:
-        "Congratulations! You have completed all 10 exercises. You now have a production-grade RetellAI + n8n automation platform. Consider exploring: n8n's native AI agent capabilities, building custom n8n nodes, or deploying n8n self-hosted for maximum control.",
+        "Congratulations! You have completed all 10 exercises. You now have a production-grade UponAI + n8n automation platform. Consider exploring: n8n's native AI agent capabilities, building custom n8n nodes, or deploying n8n self-hosted for maximum control.",
     },
   },
 ];
@@ -1082,7 +1082,7 @@ async function main() {
             codeLanguage: "javascript",
           },
           {
-            title: "Transform a RetellAI call payload",
+            title: "Transform a UponAI call payload",
             content:
               "Take a raw call payload and reshape it into a clean, flat object suitable for a CRM or spreadsheet:",
             code: "const call = $input.first().json.body.call;\n\n// Convert duration to human-readable\nfunction formatDuration(ms) {\n  const seconds = Math.floor(ms / 1000);\n  const mins = Math.floor(seconds / 60);\n  const secs = seconds % 60;\n  return `${mins}m ${secs}s`;\n}\n\n// Determine call outcome category\nfunction categorize(status, duration_ms) {\n  if (status !== 'ended') return 'failed';\n  if (duration_ms < 15000) return 'abandoned';\n  if (duration_ms < 60000) return 'brief';\n  return 'completed';\n}\n\nreturn [{\n  json: {\n    call_id: call.call_id,\n    agent_id: call.agent_id,\n    caller_phone: call.from_number || 'Unknown',\n    duration_readable: formatDuration(call.duration_ms || 0),\n    duration_seconds: Math.round((call.duration_ms || 0) / 1000),\n    outcome: categorize(call.call_status, call.duration_ms),\n    date: new Date(call.end_timestamp || Date.now()).toLocaleDateString(),\n    logged_at: new Date().toISOString()\n  }\n}];",
@@ -1099,7 +1099,7 @@ async function main() {
           {
             title: "Parse a transcript into a structured format",
             content:
-              "Transcripts from RetellAI come as a raw string. Use the Code node to parse them into an array of turns:",
+              "Transcripts from UponAI come as a raw string. Use the Code node to parse them into an array of turns:",
             code: "const transcript = $input.first().json.body.call.transcript || '';\n\n// Split into individual lines\nconst lines = transcript.split('\\n').filter(l => l.trim());\n\n// Parse each line into speaker + text\nconst turns = lines.map(line => {\n  const colonIdx = line.indexOf(':');\n  if (colonIdx === -1) return { speaker: 'unknown', text: line };\n  return {\n    speaker: line.substring(0, colonIdx).trim().toLowerCase(),\n    text: line.substring(colonIdx + 1).trim()\n  };\n});\n\nconst agentTurns = turns.filter(t => t.speaker === 'agent');\nconst customerTurns = turns.filter(t => t.speaker === 'customer');\n\nreturn [{\n  json: {\n    total_turns: turns.length,\n    agent_turns: agentTurns.length,\n    customer_turns: customerTurns.length,\n    talk_ratio: customerTurns.length / (agentTurns.length || 1),\n    first_customer_words: customerTurns[0]?.text || '',\n    transcript_turns: turns\n  }\n}];",
             codeLanguage: "javascript",
           },
@@ -1107,13 +1107,13 @@ async function main() {
             title: "Use crypto for webhook signature verification",
             content:
               "The Code node has access to Node.js built-in modules like `crypto`:",
-            code: "const crypto = require('crypto');\n\nconst body = JSON.stringify($input.first().json.body);\nconst signature = $input.first().json.headers['x-retell-signature'];\nconst secret = 'your_webhook_secret';\n\nconst expected = 'sha256=' + crypto\n  .createHmac('sha256', secret)\n  .update(body)\n  .digest('hex');\n\nif (signature !== expected) {\n  throw new Error('Invalid signature');\n}\n\nreturn $input.all();",
+            code: "const crypto = require('crypto');\n\nconst body = JSON.stringify($input.first().json.body);\nconst signature = $input.first().json.headers['x-upon-signature'];\nconst secret = 'your_webhook_secret';\n\nconst expected = 'sha256=' + crypto\n  .createHmac('sha256', secret)\n  .update(body)\n  .digest('hex');\n\nif (signature !== expected) {\n  throw new Error('Invalid signature');\n}\n\nreturn $input.all();",
             codeLanguage: "javascript",
             tip: "When the Code node throws an error, it stops the workflow and triggers error handling. Use this intentionally for validation.",
           },
         ],
         aiTips: [
-          "Ask AI: 'Write a JavaScript function for an n8n Code node that takes a RetellAI transcript string and counts the number of times a customer mentions pricing or cost.'",
+          "Ask AI: 'Write a JavaScript function for an n8n Code node that takes a UponAI transcript string and counts the number of times a customer mentions pricing or cost.'",
           "Ask AI: 'How do I use the n8n Code node to flatten a deeply nested JSON object into key-value pairs?'",
           "Ask AI to debug: Paste your Code node script and error message and ask 'Why is this Code node throwing an error?'",
         ],
@@ -1220,7 +1220,7 @@ async function main() {
       slug: "14-scheduled-reports",
       title: "Exercise 14: Scheduled Reports & Digest Emails",
       description:
-        "Build a daily automated report that aggregates your RetellAI call data from Google Sheets and emails a formatted summary digest to your team every morning.",
+        "Build a daily automated report that aggregates your UponAI call data from Google Sheets and emails a formatted summary digest to your team every morning.",
       difficulty: "INTERMEDIATE",
       order: 14,
       tags: "schedule-trigger,reporting,email,digest,automation",
@@ -1311,7 +1311,7 @@ async function main() {
           "Understand how n8n handles multiple items vs single items",
           "Use Split in Batches to process large lists in chunks",
           "Add delays between batches to respect rate limits",
-          "Loop over a contact list and trigger RetellAI outbound calls",
+          "Loop over a contact list and trigger UponAI outbound calls",
           "Aggregate results from all batches",
         ],
         prerequisites: ["Completed Exercises 1–6"],
@@ -1340,13 +1340,13 @@ async function main() {
             title: "Add Split in Batches",
             content:
               "After the Google Sheets node, add a **Split in Batches** node. Set **Batch Size** to `5`. This means n8n will process 5 contacts at a time, then loop back for the next 5.\n\nThe node has two outputs:\n- **Output 0** (loop): sends the current batch downstream\n- **Output 1** (done): fires once when all batches are processed",
-            tip: "Batch size depends on your API rate limits. For RetellAI, check their documentation for calls-per-second limits. A batch size of 5–10 with a 2-second wait is usually safe.",
+            tip: "Batch size depends on your API rate limits. For UponAI, check their documentation for calls-per-second limits. A batch size of 5–10 with a 2-second wait is usually safe.",
           },
           {
             title: "Process each batch item with an HTTP Request",
             content:
-              "Connect the **Output 0** of Split in Batches to an **HTTP Request** node that triggers a RetellAI outbound call for each contact:",
-            code: 'URL: https://api.retellai.com/create-phone-call\nMethod: POST\nAuthentication: RetellAI API\nBody: {\n  "from_number": "+15551234567",\n  "to_number": "{{ $json.phone }}",\n  "agent_id": "YOUR_AGENT_ID",\n  "retell_llm_dynamic_variables": {\n    "contact_name": "{{ $json.name }}",\n    "company": "{{ $json.company }}",\n    "campaign": "{{ $json.campaign }}"\n  }\n}',
+              "Connect the **Output 0** of Split in Batches to an **HTTP Request** node that triggers a UponAI outbound call for each contact:",
+            code: 'URL: https://api.uponai.com/create-phone-call\nMethod: POST\nAuthentication: UponAI API\nBody: {\n  "from_number": "+15551234567",\n  "to_number": "{{ $json.phone }}",\n  "agent_id": "YOUR_AGENT_ID",\n  "upon_llm_dynamic_variables": {\n    "contact_name": "{{ $json.name }}",\n    "company": "{{ $json.company }}",\n    "campaign": "{{ $json.campaign }}"\n  }\n}',
             codeLanguage: "text",
             warning:
               "Always test with a small batch of real phone numbers you own before running a full campaign. TCPA compliance is your responsibility.",
@@ -1384,18 +1384,18 @@ async function main() {
       slug: "16-form-trigger-intake",
       title: "Exercise 16: Lead Capture with the Form Trigger",
       description:
-        "Use n8n's built-in Form trigger to create a no-code web form. Capture leads, intake info, or feedback — then automatically trigger a RetellAI outbound call to follow up.",
+        "Use n8n's built-in Form trigger to create a no-code web form. Capture leads, intake info, or feedback — then automatically trigger a UponAI outbound call to follow up.",
       difficulty: "INTERMEDIATE",
       order: 16,
       tags: "form-trigger,lead-capture,no-code,intake,outbound",
       content: {
         overview:
-          "n8n has a built-in Form trigger that creates a public-facing web form with no external tools needed. When someone submits the form, it fires your workflow. This is perfect for lead intake, demo request forms, or callback requests — and you can immediately trigger a RetellAI AI call to follow up automatically.",
+          "n8n has a built-in Form trigger that creates a public-facing web form with no external tools needed. When someone submits the form, it fires your workflow. This is perfect for lead intake, demo request forms, or callback requests — and you can immediately trigger a UponAI AI call to follow up automatically.",
         objectives: [
           "Create a public web form using n8n's Form Trigger",
           "Configure form fields (text, email, phone, dropdown)",
           "Process form submissions in real-time",
-          "Trigger an automatic RetellAI outbound callback",
+          "Trigger an automatic UponAI outbound callback",
           "Log leads to Google Sheets and notify via Slack",
         ],
         prerequisites: ["Completed Exercises 1–6"],
@@ -1426,10 +1426,10 @@ async function main() {
               "The Form Trigger has a **Form Ending** option where you can configure what the user sees after submitting. Set it to show a thank-you message:\n\n**Title**: 'We will be in touch shortly!'\n**Message**: 'Our AI assistant will call you within 5 minutes during business hours. Check your email for confirmation.'",
           },
           {
-            title: "Trigger an immediate RetellAI callback",
+            title: "Trigger an immediate UponAI callback",
             content:
               "After the form trigger, add an IF node to check business hours, then an HTTP Request node to call the lead back immediately:",
-            code: 'URL: https://api.retellai.com/create-phone-call\nMethod: POST\nBody: {\n  "from_number": "+15551234567",\n  "to_number": "{{ $json.formData.phoneNumber }}",\n  "agent_id": "YOUR_AGENT_ID",\n  "retell_llm_dynamic_variables": {\n    "lead_name": "{{ $json.formData.fullName }}",\n    "company": "{{ $json.formData.company || \'their company\' }}",\n    "best_time": "{{ $json.formData.bestTimeToCall }}",\n    "topic": "{{ $json.formData.whatCanWeHelpWith || \'your inquiry\' }}"\n  }\n}',
+            code: 'URL: https://api.uponai.com/create-phone-call\nMethod: POST\nBody: {\n  "from_number": "+15551234567",\n  "to_number": "{{ $json.formData.phoneNumber }}",\n  "agent_id": "YOUR_AGENT_ID",\n  "upon_llm_dynamic_variables": {\n    "lead_name": "{{ $json.formData.fullName }}",\n    "company": "{{ $json.formData.company || \'their company\' }}",\n    "best_time": "{{ $json.formData.bestTimeToCall }}",\n    "topic": "{{ $json.formData.whatCanWeHelpWith || \'your inquiry\' }}"\n  }\n}',
             codeLanguage: "json",
             tip: "Form data is available at `$json.formData.fieldName` where fieldName matches the field label (camelCased automatically by n8n).",
           },
@@ -1445,12 +1445,12 @@ async function main() {
           },
         ],
         aiTips: [
-          "Ask AI: 'Write a RetellAI agent prompt for an AI that calls back a lead immediately after they submit a demo request form. Include how to use the dynamic variables for personalization.'",
+          "Ask AI: 'Write a UponAI agent prompt for an AI that calls back a lead immediately after they submit a demo request form. Include how to use the dynamic variables for personalization.'",
           "Ask AI: 'How do I add CAPTCHA or spam protection to an n8n form trigger?'",
           "Ask AI: 'What should my form's thank-you message say to set the right expectations for an immediate AI callback?'",
         ],
         testingGuide:
-          "Submit the form with your own name and phone number. Verify: (1) you see the thank-you page, (2) Slack notification arrives, (3) Google Sheets row is added, (4) RetellAI API returns a call_id (or the actual call comes through).",
+          "Submit the form with your own name and phone number. Verify: (1) you see the thank-you page, (2) Slack notification arrives, (3) Google Sheets row is added, (4) UponAI API returns a call_id (or the actual call comes through).",
         nextSteps:
           "Exercise 17 covers building complex outbound call campaigns with retry logic, blackout windows, and multi-touch sequences.",
       },
@@ -1467,7 +1467,7 @@ async function main() {
       tags: "outbound,campaigns,retry-logic,scheduling,sequences",
       content: {
         overview:
-          "A production outbound campaign isn't just 'call everyone on the list.' It needs retry logic for no-answers, respect for do-not-call windows, multi-touch sequences (call → voicemail → SMS follow-up), and real-time tracking. This exercise builds that complete system using n8n and RetellAI.",
+          "A production outbound campaign isn't just 'call everyone on the list.' It needs retry logic for no-answers, respect for do-not-call windows, multi-touch sequences (call → voicemail → SMS follow-up), and real-time tracking. This exercise builds that complete system using n8n and UponAI.",
         objectives: [
           "Build a campaign state machine with attempt tracking",
           "Implement retry logic with maximum attempt limits",
@@ -1528,7 +1528,7 @@ async function main() {
         aiTips: [
           "Ask AI: 'Design a retry schedule for outbound calling campaigns. How many attempts, how far apart, and what time of day works best?'",
           "Ask AI: 'What are TCPA compliance requirements for automated outbound calling and how do I implement them in my workflow?'",
-          "Ask AI: 'Write a RetellAI agent prompt for a follow-up call where the agent knows this is the second attempt and the person didn't answer the first call.'",
+          "Ask AI: 'Write a UponAI agent prompt for a follow-up call where the agent knows this is the second attempt and the person didn't answer the first call.'",
         ],
         testingGuide:
           "Load 5 test contacts into your sheet. Run the campaign. Verify status updates correctly for each state. Test the blackout window by running outside business hours. Verify max attempt logic stops retrying after 3 attempts.",
@@ -1546,7 +1546,7 @@ async function main() {
       tags: "monitoring,alerts,real-time,anomaly-detection,dashboard",
       content: {
         overview:
-          "Once you have RetellAI handling real calls, you need to know what's happening right now — not just in yesterday's report. This exercise builds a live monitoring system that tracks active calls, computes metrics in real-time, detects issues automatically, and alerts your team before small problems become big ones.",
+          "Once you have UponAI handling real calls, you need to know what's happening right now — not just in yesterday's report. This exercise builds a live monitoring system that tracks active calls, computes metrics in real-time, detects issues automatically, and alerts your team before small problems become big ones.",
         objectives: [
           "Build a stateful call tracker using n8n workflow static data",
           "Detect anomalies: calls over a certain duration, high failure rates",
@@ -1565,7 +1565,7 @@ async function main() {
           {
             name: "Webhook Heartbeat Pattern",
             description:
-              "A scheduled workflow that checks whether your webhook has received any events in the last N minutes. If not, it fires an alert — catching silent failures where RetellAI stopped sending events.",
+              "A scheduled workflow that checks whether your webhook has received any events in the last N minutes. If not, it fires an alert — catching silent failures where UponAI stopped sending events.",
           },
         ],
         steps: [
@@ -1592,14 +1592,14 @@ async function main() {
             title: "Build the anomaly Slack alert",
             content:
               "Format a rich Slack alert for anomalous calls:",
-            code: "ALERT: Call Anomaly Detected!\n\nCall ID: {{ $json.call_id }}\nDuration: {{ $json.duration_minutes }} minutes\nFrom: {{ $json.from_number }}\nAgent: {{ $json.agent_id }}\nAnomaly: {{ $json.is_anomaly ? 'Unusually long call (' + $json.duration_minutes + 'm)' : '' }}\nFailure Rate: {{ $json.high_failure_rate ? $json.failure_rate + '% of recent calls failed (threshold: 30%)' : 'Normal' }}\nTime: {{ $now.toFormat('h:mm a') }}\n\nAction required: Check RetellAI dashboard.",
+            code: "ALERT: Call Anomaly Detected!\n\nCall ID: {{ $json.call_id }}\nDuration: {{ $json.duration_minutes }} minutes\nFrom: {{ $json.from_number }}\nAgent: {{ $json.agent_id }}\nAnomaly: {{ $json.is_anomaly ? 'Unusually long call (' + $json.duration_minutes + 'm)' : '' }}\nFailure Rate: {{ $json.high_failure_rate ? $json.failure_rate + '% of recent calls failed (threshold: 30%)' : 'Normal' }}\nTime: {{ $now.toFormat('h:mm a') }}\n\nAction required: Check UponAI dashboard.",
             codeLanguage: "text",
           },
           {
             title: "Build a heartbeat monitor",
             content:
               "Create a separate workflow with a **Schedule Trigger** (every 15 minutes). It checks if your main webhook has received any events recently:",
-            code: "const staticData = $getWorkflowStaticData('global');\nconst lastCallAt = staticData.last_call_at || 0;\nconst minutesSinceLastCall = (Date.now() - lastCallAt) / 60000;\n\n// Alert if no calls in 2 hours during business hours\nconst hour = new Date().getHours();\nconst isBusinessHours = hour >= 9 && hour < 17;\n\nif (isBusinessHours && minutesSinceLastCall > 120) {\n  return [{ json: {\n    alert: true,\n    minutes_silent: Math.round(minutesSinceLastCall),\n    message: 'No webhook events in ' + Math.round(minutesSinceLastCall) + ' minutes. Is RetellAI sending events?'\n  } }];\n}\n\nreturn [{ json: { alert: false } }];",
+            code: "const staticData = $getWorkflowStaticData('global');\nconst lastCallAt = staticData.last_call_at || 0;\nconst minutesSinceLastCall = (Date.now() - lastCallAt) / 60000;\n\n// Alert if no calls in 2 hours during business hours\nconst hour = new Date().getHours();\nconst isBusinessHours = hour >= 9 && hour < 17;\n\nif (isBusinessHours && minutesSinceLastCall > 120) {\n  return [{ json: {\n    alert: true,\n    minutes_silent: Math.round(minutesSinceLastCall),\n    message: 'No webhook events in ' + Math.round(minutesSinceLastCall) + ' minutes. Is UponAI sending events?'\n  } }];\n}\n\nreturn [{ json: { alert: false } }];",
             codeLanguage: "javascript",
             tip: "Share static data between workflows by giving the heartbeat workflow access to the same workflow ID. Or use a shared Google Sheet as the state store instead.",
           },

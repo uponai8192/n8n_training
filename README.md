@@ -1,6 +1,6 @@
-# N8N + RetellAI Exercise Platform
+# N8N + UponAI Exercise Platform
 
-A training platform for learning n8n automation with RetellAI AI phone agents. Partners work through 10 progressive exercises, from basic webhooks to production-grade automation systems.
+A training platform for learning n8n automation with UponAI AI phone agents. Partners work through 10 progressive exercises, from basic webhooks to production-grade automation systems.
 
 ## Getting Started
 
@@ -62,15 +62,15 @@ Open [http://localhost:3000](http://localhost:3000)
 | # | Title | Difficulty |
 |---|-------|-----------|
 | 1 | Your First Webhook | Beginner |
-| 2 | Receiving RetellAI Call Events | Beginner |
+| 2 | Receiving UponAI Call Events | Beginner |
 | 3 | Conditional Routing with IF Nodes | Beginner |
 | 4 | Sending Notifications After Calls | Intermediate |
 | 5 | Logging Call Data to Google Sheets | Intermediate |
 | 6 | Calling External APIs & CRM Updates | Intermediate |
 | 7 | AI-Powered Transcript Analysis | Advanced |
 | 8 | Error Handling & Retry Logic | Advanced |
-| 9 | Dynamic RetellAI Agent Updates | Advanced |
-| 10 | Production-Ready RetellAI Platform | Expert |
+| 9 | Dynamic UponAI Agent Updates | Advanced |
+| 10 | Production-Ready UponAI Platform | Expert |
 
 ## Database
 
