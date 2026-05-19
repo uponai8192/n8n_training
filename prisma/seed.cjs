@@ -276,7 +276,7 @@ const EXERCISES = [
       testingGuide:
         "Test both branches using pinned data before you use real calls again. Your goal is simple: prove that one value goes left and the opposite value goes right every time.",
       nextSteps:
-        "Exercise 4 builds on this by replacing one of those placeholder branches with a real HTML email your team can actually use.",
+        "Exercise 4 slows down for one essential skill: expressions. Once you can read values cleanly, the later action steps become much easier to build.",
     },
   },
   {
@@ -285,7 +285,7 @@ const EXERCISES = [
     description:
       "Send one clean HTML email after an important call. Use the data from your webhook and IF node to build a message your team can read quickly.",
     difficulty: "INTERMEDIATE",
-    order: 6,
+    order: 7,
     tags: "notifications,email,slack,gmail",
     content: {
       overview:
@@ -359,7 +359,7 @@ const EXERCISES = [
       testingGuide:
         "Verify that the subject line is correct, the caller name and reason show up, the summary is readable, and the recording link opens. If the email is too long, shorten the transcript section before adding anything else.",
       nextSteps:
-        "Once the email works, you can add more branches later for other call types or log the same call data to Google Sheets.",
+        "Once the email works, log the same call data to Google Sheets in Exercise 8 so your team has a searchable call history.",
     },
   },
   {
@@ -368,7 +368,7 @@ const EXERCISES = [
     description:
       "Automatically log every UponAI call to a Google Sheet for tracking and analysis. Learn to append rows, handle duplicates, and structure your data for reporting.",
     difficulty: "INTERMEDIATE",
-    order: 10,
+    order: 8,
     tags: "google-sheets,logging,data,reporting",
     content: {
       overview:
@@ -441,93 +441,96 @@ const EXERCISES = [
       testingGuide:
         "After testing, open your Google Sheet and verify: all columns populated correctly, no empty rows, timestamps are human-readable, and sending the same call_id twice doesn't create a duplicate row.",
       nextSteps:
-        "Exercise 6 introduces HTTP Request nodes to call external APIs — including updating CRM records and triggering follow-up actions based on call outcomes.",
+        "Exercise 9 moves from spreadsheets into CRM workflows by looking up a contact in GoHighLevel and updating or creating the record automatically.",
     },
   },
   {
     slug: "06-http-request-crm",
-    title: "Exercise 9: Calling External APIs & CRM Updates",
+    title: "Exercise 9: GoHighLevel Contact Lookup & Update",
     description:
-      "Use the HTTP Request node to call any external API. Update CRM contact records, create follow-up tasks, or trigger third-party actions when calls complete.",
+      "Use an inbound webhook to look up a contact in GoHighLevel by phone or email, then update the record or create a new one. This is the core CRM pattern behind personalized call flows.",
     difficulty: "INTERMEDIATE",
-    order: 11,
-    tags: "http-request,api,crm,hubspot,airtable",
+    order: 9,
+    tags: "highlevel,crm,contact-lookup,webhook,http-request",
     content: {
       overview:
-        "The HTTP Request node is n8n's universal API connector — if a service has an API, you can call it. In this exercise, you'll learn to authenticate and call external APIs, specifically to update a CRM (HubSpot, Airtable, or your system of choice) when a UponAI call completes.",
+        "A very common AI voice pattern is: call comes in, find the contact, personalize the conversation, and then write the results back to the CRM. In this exercise, you will build that pattern at a high level with GoHighLevel. The exact fields can vary by client, but the workflow shape stays the same.",
       objectives: [
-        "Configure the HTTP Request node with authentication",
-        "Make GET requests to look up existing records",
-        "Make POST/PATCH requests to create or update records",
-        "Handle API responses and extract data for the next step",
+        "Receive an inbound webhook with phone or email data",
+        "Look up an existing GoHighLevel contact",
+        "Branch on contact found vs not found",
+        "Update the contact with call or appointment details",
+        "Create a new contact when no match exists",
       ],
-      prerequisites: ["Completed Exercises 1–5", "API access to a CRM or data tool (HubSpot free, Airtable, etc.)"],
-      estimatedTime: "60–90 minutes",
+      prerequisites: ["Completed Exercises 1–8", "A GoHighLevel location connected in n8n"],
+      estimatedTime: "45–60 minutes",
       tools: [
+        {
+          name: "GoHighLevel Node",
+          description:
+            "The GoHighLevel node can search, create, and update contacts without you building every HTTP request manually. Use it first when the built-in actions cover what you need.",
+          docUrl: "https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.highlevel/",
+        },
         {
           name: "HTTP Request Node",
           description:
-            "The HTTP Request node makes any HTTP call — GET, POST, PUT, PATCH, DELETE. You can add headers, authentication (API key, OAuth, Basic Auth), request body, and query parameters. It's the most powerful node in n8n for integrating with any system.",
+            "When the native HighLevel node does not expose a specific endpoint, fall back to HTTP Request for custom LeadConnector API calls such as notes, free slots, or edge-case updates.",
           docUrl: "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/",
-        },
-        {
-          name: "HubSpot Free CRM",
-          description:
-            "HubSpot offers a free CRM tier with full API access. Use it to track contacts, deals, and call activities. The API uses OAuth2 or a private app API key.",
-          docUrl: "https://developers.hubspot.com/docs/api/crm/contacts",
         },
       ],
       steps: [
         {
-          title: "Get your API credentials",
+          title: "Start with an inbound lookup webhook",
           content:
-            "**For HubSpot**: Go to Settings → Integrations → Private Apps → Create a private app. Add the `crm.objects.contacts.read` and `crm.objects.contacts.write` scopes. Copy the access token.\n\n**For Airtable**: Go to airtable.com/account, create a personal access token with `data.records:read` and `data.records:write` scopes.",
-          tip: "Store API keys as n8n Credentials (Header Auth type) rather than hardcoding them in nodes. This way you can reuse them across workflows.",
+            "Create a new workflow with a Webhook node that receives the inbound payload from your voice platform. For training, keep the payload simple and focus on the identity fields you actually need to search with first:\n\n- caller phone number\n- caller email\n- optional first and last name\n- optional appointment details",
+          tip: "Do not start by mapping 30 fields. First prove you can find the right contact using one or two reliable identifiers.",
         },
         {
-          title: "Look up a contact by phone number",
+          title: "Look up the contact by phone or email",
           content:
-            "Add an HTTP Request node to search for a contact by the caller's phone number:\n\n**URL**: `https://api.hubapi.com/crm/v3/objects/contacts/search`\n**Method**: POST\n**Authentication**: Bearer token (your HubSpot API key)",
-          code: '{\n  "filterGroups": [{\n    "filters": [{\n      "propertyName": "phone",\n      "operator": "EQ",\n      "value": "{{ $json.from_number }}"\n    }]\n  }],\n  "properties": ["phone", "email", "firstname", "lastname"]\n}',
+            "Add a GoHighLevel search step. In many real workflows, phone number is the first lookup key because it is the most available on inbound calls. If the phone is missing or unreliable, fall back to email.",
+          code: "Primary lookup:\nphone -> {{ $json.body.args.phone || $json.body.call_inbound.from_number }}\n\nFallback lookup:\nemail -> {{ $json.body.args.email || '' }}",
+          codeLanguage: "text",
+        },
+        {
+          title: "Branch on contact found vs not found",
+          content:
+            "Add an IF node after the lookup result.\n\n- **TRUE branch**: contact exists, so update it\n- **FALSE branch**: no match, so create a new contact\n\nThis one branch point is the heart of the CRM pattern.",
+          tip: "If your search can return multiple contacts, keep the training version simple and use the first match only. You can add deduping rules later.",
+        },
+        {
+          title: "Update the contact with the newest details",
+          content:
+            "On the TRUE branch, update a small, useful set of fields:\n\n- latest phone or email if missing\n- appointment status\n- reason for call\n- short call summary\n- last contacted timestamp\n\nIf you want to track long notes or transcripts, write them as a note activity instead of stuffing everything into one contact field.",
+          tip: "A good beginner rule: contact fields for structured facts, notes for narrative detail.",
+        },
+        {
+          title: "Create a new contact when no match exists",
+          content:
+            "On the FALSE branch, create a contact with the fields your workflow reliably collected. Good starter fields are:\n\n- first name\n- last name\n- phone\n- email\n- source = AI voice workflow\n- a simple tag such as `appointment-request` or `inbound-call`",
+          code: "{\n  \"firstName\": \"{{ $json.body.args.first_name || '' }}\",\n  \"lastName\": \"{{ $json.body.args.last_name || '' }}\",\n  \"phone\": \"{{ $json.body.args.phone || $json.body.call_inbound.from_number }}\",\n  \"email\": \"{{ $json.body.args.email || '' }}\"\n}",
           codeLanguage: "json",
         },
         {
-          title: "Handle contact found vs not found",
+          title: "Add one special-case branch only if it matters",
           content:
-            "Add an IF node to check if a contact was found:\n\n**Condition**: `{{ $json.total }}` is greater than `0`\n\n- **TRUE branch**: Contact found — update their record\n- **FALSE branch**: Contact not found — create a new contact",
-          tip: "HubSpot's search returns `{ total: 0, results: [] }` when nothing is found. Check the `total` field.",
+            "Your production flow has special handling such as an Andrew check or ignoring bad phone values like `N/A`. That is fine, but teach it after the main pattern works:\n\n1. lookup\n2. found vs not found\n3. update vs create\n\nOnly then add special-case filters.",
         },
         {
-          title: "Update the contact with call activity",
+          title: "Test with a known and unknown contact",
           content:
-            "On the TRUE branch, add another HTTP Request node to log the call as an activity on the contact:",
-          code: "URL: https://api.hubapi.com/crm/v3/objects/contacts/{{ $json.results[0].id }}\nMethod: PATCH\nBody: {\n  \"properties\": {\n    \"last_call_date\": \"{{ $now.toISO() }}\",\n    \"last_call_duration_s\": \"{{ $json.duration_seconds }}\",\n    \"last_call_status\": \"{{ $json.call_status }}\"\n  }\n}",
-          codeLanguage: "text",
-          warning:
-            "Make sure the custom properties exist in HubSpot before writing to them — create them in CRM Settings → Properties first.",
-        },
-        {
-          title: "Create a new contact if not found",
-          content:
-            "On the FALSE branch, create a new contact with the caller's phone number:",
-          code: 'URL: https://api.hubapi.com/crm/v3/objects/contacts\nMethod: POST\nBody: {\n  "properties": {\n    "phone": "{{ $json.from_number }}",\n    "last_call_date": "{{ $now.toISO() }}",\n    "lead_source": "AI Agent Call"\n  }\n}',
-          codeLanguage: "text",
-        },
-        {
-          title: "Test with real call data",
-          content:
-            "Make a test call or send a simulated payload. Check your CRM to verify: the contact was found (or created), and the call details were logged correctly.",
+            "Run the workflow twice:\n\n- once with a phone number already in GoHighLevel\n- once with a brand new number\n\nVerify that the first run updates the right contact and the second run creates one clean new record.",
         },
       ],
       aiTips: [
-        "Ask AI: 'Show me the HubSpot API call to create an engagement (call log) on a contact record and associate it with a specific deal.'",
-        "Ask AI: 'My HTTP Request node is returning a 401 error. What are the most common causes and how do I fix them?'",
-        "Use AI to map fields: 'I have a UponAI call object with these fields. Map them to HubSpot contact properties for a CRM integration.'",
+        "Ask AI: 'Map this inbound call webhook into the minimum fields I should use for a GoHighLevel contact lookup and update flow.'",
+        "Ask AI: 'What contact fields should stay structured versus being stored as a note in a CRM?'",
+        "Ask AI: 'Help me simplify this CRM workflow so non-technical users can understand the found-vs-create pattern.'",
       ],
       testingGuide:
-        "Test with: (1) a phone number that exists in your CRM, (2) a new phone number not in your CRM, (3) an invalid phone number format. Verify each case is handled correctly.",
+        "Test with: (1) an existing contact, (2) a new contact, and (3) a payload with a missing or bad phone field. Confirm the workflow still behaves predictably and does not create junk duplicates.",
       nextSteps:
-        "Exercise 7 introduces n8n's built-in AI capabilities — using LLM nodes to analyze call transcripts and generate intelligent summaries and action items.",
+        "Exercise 10 uses another webhook pattern from your real stack: checking calendar availability inside a date range and expanding the search when nothing is available.",
     },
   },
   {
@@ -536,7 +539,7 @@ const EXERCISES = [
     description:
       "Use n8n's AI nodes (OpenAI/Anthropic) to analyze call transcripts, extract key information, generate summaries, and identify action items automatically.",
     difficulty: "ADVANCED",
-    order: 7,
+    order: 13,
     tags: "ai,openai,transcript,analysis,llm",
     content: {
       overview:
@@ -611,7 +614,7 @@ const EXERCISES = [
       testingGuide:
         "Test with 5 different transcript types: resolved issue, unresolved complaint, appointment booking, sales call, and wrong number. Verify the AI correctly identifies sentiment and resolution status for each.",
       nextSteps:
-        "Exercise 8 covers error handling and retry logic — essential for production workflows where API calls can fail.",
+        "Exercise 14 covers error handling and retry logic — essential for production workflows where API calls can fail.",
     },
   },
   {
@@ -620,7 +623,7 @@ const EXERCISES = [
     description:
       "Build production-grade workflows with proper error handling, automatic retries, and failure notifications. Learn to use n8n's Error Trigger and workflow settings.",
     difficulty: "ADVANCED",
-    order: 8,
+    order: 14,
     tags: "error-handling,retry,production,reliability",
     content: {
       overview:
@@ -693,7 +696,7 @@ const EXERCISES = [
       testingGuide:
         "Run through all error scenarios: API timeout, invalid credentials, network error, rate limiting. Verify you receive Slack notifications for each, and that the dead-letter queue captures the raw payload.",
       nextSteps:
-        "Exercise 9 covers dynamic UponAI agent updates — changing agent prompts, voices, and behavior in real-time based on business logic using the UponAI API.",
+        "Exercise 15 covers dynamic UponAI agent updates — changing agent prompts, voices, and behavior in real-time based on business logic using the UponAI API.",
     },
   },
   {
@@ -702,7 +705,7 @@ const EXERCISES = [
     description:
       "Use the UponAI API to dynamically update agent configurations — change prompts, voices, and variables in real-time based on business rules, time of day, or CRM data.",
     difficulty: "ADVANCED",
-    order: 9,
+    order: 15,
     tags: "uponai-api,dynamic,agent-config,outbound",
     content: {
       overview:
@@ -784,20 +787,20 @@ const EXERCISES = [
       testingGuide:
         "Test the schedule trigger during business hours and outside business hours. Verify the agent prompt changes correctly. Make a test call in each mode to confirm the agent behavior matches the expected prompt.",
       nextSteps:
-        "The final exercise brings everything together in a complete, production-ready end-to-end UponAI automation platform with all the patterns from Exercises 1–9.",
+        "Exercise 16 comes back to operations and reporting by scheduling automated summaries and digest emails for your team.",
     },
   },
   {
     slug: "10-production-ready-platform",
-    title: "Exercise 18: Production-Ready UponAI Platform",
+    title: "Exercise 20: Production-Ready UponAI Platform",
     description:
       "Build a complete, production-grade UponAI automation platform combining all patterns: inbound handling, outbound campaigns, AI analysis, CRM sync, notifications, error handling, and monitoring.",
     difficulty: "EXPERT",
-    order: 17,
+    order: 20,
     tags: "production,advanced,architecture,monitoring,complete",
     content: {
       overview:
-        "This is the capstone exercise. You'll architect and build a complete UponAI automation system using everything learned in Exercises 1–9. This is designed to mirror a real production deployment — the kind of system you'd build for a paying client. The focus is on reliability, scalability, and maintainability.",
+        "This is the capstone exercise. You'll architect and build a complete UponAI automation system using everything learned across the full curriculum. This is designed to mirror a real production deployment — the kind of system you'd build for a paying client. The focus is on reliability, scalability, and maintainability.",
       objectives: [
         "Design a multi-workflow architecture for a UponAI use case",
         "Implement a complete inbound + outbound call automation system",
@@ -805,7 +808,7 @@ const EXERCISES = [
         "Document your workflows for handoff to clients",
         "Implement security best practices (webhook verification, rate limiting)",
       ],
-      prerequisites: ["Completed Exercises 1–9 (all of them)"],
+      prerequisites: ["Completed Exercises 1–19"],
       estimatedTime: "3–5 hours (design + build + test)",
       tools: [
         {
@@ -877,7 +880,7 @@ const EXERCISES = [
       testingGuide:
         "Full end-to-end test: make 5 real calls through your UponAI agent, verify each event is processed correctly, CRM is updated, notifications sent, Google Sheet logged, and no errors in the Error Handler. Then test failure scenarios.",
       nextSteps:
-        "Congratulations! You have completed all 10 exercises. You now have a production-grade UponAI + n8n automation platform. Consider exploring: n8n's native AI agent capabilities, building custom n8n nodes, or deploying n8n self-hosted for maximum control.",
+        "Congratulations! You have completed the full 20-exercise curriculum. You now have a production-grade UponAI + n8n automation platform. Consider exploring: n8n's native AI agent capabilities, building custom n8n nodes, or deploying n8n self-hosted for maximum control.",
     },
   },
 ];
@@ -1031,7 +1034,7 @@ async function main() {
         testingGuide:
           "Create a Set node with 10 different expression fields covering: string concat, number math, date formatting, null safety, and a ternary condition. Verify each field shows the expected output in the data panel.",
         nextSteps:
-          "Exercise 12 builds on this by using the Code node for transformations that are too complex for single expressions — full JavaScript functions with loops, conditionals, and external data.",
+          "Exercise 5 builds on this by using the Code node for transformations that are too complex for single expressions — full JavaScript functions with loops, conditionals, and external data.",
       },
     },
     {
@@ -1052,7 +1055,7 @@ async function main() {
           "Use the Code node to parse, reshape, and enrich data",
           "Handle errors gracefully inside the Code node",
         ],
-        prerequisites: ["Completed Exercises 1–3, 11"],
+        prerequisites: ["Completed Exercises 1–4"],
         estimatedTime: "35–50 minutes",
         tools: [
           {
@@ -1107,9 +1110,9 @@ async function main() {
           "Ask AI to debug: Paste your Code node script and error message and ask 'Why is this Code node throwing an error?'",
         ],
         testingGuide:
-          "Test with the sample transcript from Exercise 7. Verify the Code node correctly parses it into turns, calculates the talk ratio, and extracts the first customer words.",
+          "Test with any sample transcript from your earlier webhook exercises. Verify the Code node correctly parses it into turns, calculates the talk ratio, and extracts the first customer words.",
         nextSteps:
-          "Exercise 13 covers the Manual Trigger and how to properly debug workflows using n8n's built-in execution tools.",
+          "Exercise 6 covers debugging, pinned data, and execution history so you can test workflows without constantly re-triggering them.",
       },
     },
     {
@@ -1118,7 +1121,7 @@ async function main() {
       description:
         "Learn to use n8n's execution history, pin data, and debug tools to build workflows with confidence. Never get stuck on a failing workflow again.",
       difficulty: "BEGINNER",
-      order: 13,
+      order: 6,
       tags: "debugging,testing,execution-history,pinning",
       content: {
         overview:
@@ -1200,18 +1203,188 @@ async function main() {
         testingGuide:
           "Deliberately break one of your earlier workflows (use a wrong API key, or reference a field that doesn't exist). Practice using the Executions panel to find the error, understand the message, and fix it.",
         nextSteps:
-          "You now have solid fundamentals. Exercise 14 moves to intermediate territory with scheduled triggers — automating reports and campaigns on a time-based schedule.",
+          "You now have solid fundamentals. Exercise 7 puts them to work by sending a clean call-summary email from a real call branch.",
       },
     },
 
     // ─── INTERMEDIATE ────────────────────────────────────────────────────────
     {
+      slug: "10-calendar-availability-lookup",
+      title: "Exercise 10: Calendar Availability Lookup",
+      description:
+        "Use a webhook to check calendar availability inside a date range, then expand the search window when no slots are returned. This teaches a real appointment-lookup pattern without overcomplicating it.",
+      difficulty: "INTERMEDIATE",
+      order: 10,
+      tags: "calendar,availability,webhook,highlevel,scheduling",
+      content: {
+        overview:
+          "A scheduling assistant often needs to answer one simple question: what appointment times are open? In your real flow, the webhook receives a start and end range, converts the dates, checks a calendar, and widens the search if nothing is available. This exercise teaches that pattern at a clean, high level.",
+        objectives: [
+          "Receive a scheduling request through a webhook",
+          "Read start and end dates from the incoming payload",
+          "Convert dates into the format required by the calendar API",
+          "Return matching open slots",
+          "Extend the search window when the first search is empty",
+        ],
+        prerequisites: ["Completed Exercises 1–9", "A calendar system or GoHighLevel calendar connected in n8n"],
+        estimatedTime: "45–60 minutes",
+        tools: [
+          {
+            name: "Webhook Node",
+            description:
+              "Starts the lookup flow by receiving the requested start and end date range from another system or AI tool.",
+          },
+          {
+            name: "Code Node",
+            description:
+              "Use it to convert ISO strings into epoch timestamps or any other date format your calendar API expects.",
+          },
+          {
+            name: "HTTP Request or HighLevel Node",
+            description:
+              "Use the built-in HighLevel node when possible, or HTTP Request when you need a specific availability endpoint such as LeadConnector free-slots.",
+          },
+        ],
+        steps: [
+          {
+            title: "Receive a date range from a webhook",
+            content:
+              "Create a webhook that expects a small payload with `start` and `end`. Keep the training version simple and ignore every other field until the lookup works reliably.",
+            code: "{\n  \"args\": {\n    \"start\": \"2026-05-20T09:00:00.000Z\",\n    \"end\": \"2026-05-23T17:00:00.000Z\"\n  }\n}",
+            codeLanguage: "json",
+          },
+          {
+            title: "Convert the incoming dates for the calendar API",
+            content:
+              "Add a Code node that reads the incoming ISO dates and converts them into the format your calendar endpoint needs. In many real flows, that means epoch milliseconds plus one extra value for an extended end date.",
+            tip: "Do the conversion once in a Code node so the rest of the workflow stays readable.",
+          },
+          {
+            title: "Call the availability endpoint",
+            content:
+              "Use either the HighLevel node or an HTTP Request node to ask the calendar for free slots in the requested window. Return only the slots and a small amount of metadata so the response stays clean.",
+          },
+          {
+            title: "Check whether any slots were returned",
+            content:
+              "Add an IF node after the availability lookup.\n\n- **TRUE branch**: slots were returned, so respond immediately\n- **FALSE branch**: nothing was found, so try a larger date range",
+          },
+          {
+            title: "Extend the search by five days when the first search is empty",
+            content:
+              "On the empty-results branch, run a second availability request using the same start date and a later end date. A simple version is adding 5 days to the original end date, then responding with that expanded result.",
+            tip: "This makes the assistant feel helpful instead of just saying 'nothing available' too quickly.",
+          },
+          {
+            title: "Respond with a clean payload",
+            content:
+              "End the workflow with a Respond to Webhook node. Return the available slots and, if helpful, whether the search had to be expanded.",
+            code: "{\n  \"success\": true,\n  \"extended_search\": false,\n  \"slots\": []\n}",
+            codeLanguage: "json",
+          },
+        ],
+        aiTips: [
+          "Ask AI: 'Write a small n8n Code node that converts start and end ISO strings into epoch milliseconds and also adds five days to the end date.'",
+          "Ask AI: 'How should I keep an availability webhook response simple enough for a voice assistant tool call?'",
+          "Ask AI: 'What fields should I return from a calendar availability lookup if I want the next booking step to stay easy?'",
+        ],
+        testingGuide:
+          "Test one date range that has open slots and one that does not. Confirm the first returns direct results and the second falls back to the extended window without failing.",
+        nextSteps:
+          "Exercise 11 takes the next real-world step: booking the appointment, checking the booking status, and sending a basic confirmation message.",
+      },
+    },
+    {
+      slug: "11-calendar-booking-confirmation",
+      title: "Exercise 11: Calendar Booking & Confirmation",
+      description:
+        "Book an appointment from a webhook request, branch on booking success or failure, and send a simple confirmation email. This mirrors the core booking flow from your real automations.",
+      difficulty: "INTERMEDIATE",
+      order: 11,
+      tags: "calendar,booking,confirmation,email,highlevel",
+      content: {
+        overview:
+          "After you can find open times, the next step is booking one. In your real workflow, the booking request goes into the calendar system, a status comes back, and the workflow decides whether to confirm or fail. This exercise teaches that core pattern and adds a lightweight confirmation email.",
+        objectives: [
+          "Receive booking details through a webhook",
+          "Look up or reuse the right CRM contact",
+          "Create the appointment in the calendar system",
+          "Branch on `booked` vs not booked",
+          "Send a simple confirmation email after success",
+        ],
+        prerequisites: ["Completed Exercise 10", "A connected GoHighLevel calendar and email credential"],
+        estimatedTime: "45–60 minutes",
+        tools: [
+          {
+            name: "HighLevel Calendar Action",
+            description:
+              "Use the GoHighLevel node to create the appointment when the built-in calendar action is available.",
+          },
+          {
+            name: "Switch Node",
+            description:
+              "A Switch is a clean way to branch on the returned booking status, especially when the API sends values like `booked`, `pending`, or `failed`.",
+          },
+          {
+            name: "Send Email Node",
+            description:
+              "Use one simple confirmation email. Keep the first version short and focused on the who, when, and where.",
+          },
+        ],
+        steps: [
+          {
+            title: "Receive the booking request",
+            content:
+              "Create a webhook that accepts the selected slot plus the customer information you need for the calendar and email steps.",
+            code: "{\n  \"args\": {\n    \"selectedSlot\": \"2026-05-21T15:00:00.000Z\",\n    \"user_name\": \"Jody\",\n    \"email\": \"jody@example.com\",\n    \"phone\": \"+19732073861\"\n  }\n}",
+            codeLanguage: "json",
+          },
+          {
+            title: "Find the contact or create it first",
+            content:
+              "Before booking, reuse the contact lookup pattern from Exercise 9. If your booking endpoint needs a contact ID, get it here so the calendar step stays clean.",
+          },
+          {
+            title: "Create the appointment",
+            content:
+              "Use the HighLevel calendar action or a booking API request to create the appointment using the selected slot and contact ID. Keep the first version focused on one calendar and one location.",
+          },
+          {
+            title: "Branch on booking status",
+            content:
+              "Add a Switch node after the booking action.\n\n- `status == booked` -> success path\n- anything else -> failure path\n\nRespond clearly so the caller, tool, or downstream workflow knows what happened.",
+            code: "{\n  \"success\": true,\n  \"message\": \"Appointment booked successfully\"\n}",
+            codeLanguage: "json",
+          },
+          {
+            title: "Send a short confirmation email on success",
+            content:
+              "On the success branch, add one email node that sends a basic confirmation to the customer or internal rep. Include:\n\n- name\n- date and time\n- any meeting link or next step\n\nDo not try to make the first version pretty. Just make it correct.",
+          },
+          {
+            title: "Return a simple success or failure response",
+            content:
+              "End both branches with a Respond to Webhook node so the caller gets a consistent JSON result. This is especially useful when the booking flow is called by another AI tool.",
+          },
+        ],
+        aiTips: [
+          "Ask AI: 'What is the minimum confirmation email I should send after an appointment is booked from an n8n workflow?'",
+          "Ask AI: 'Help me design a simple Switch node pattern for booked, failed, and fallback booking states.'",
+          "Ask AI: 'What booking fields should I keep in the webhook payload versus looking up from the CRM?'",
+        ],
+        testingGuide:
+          "Test one successful booking and one failed booking. Confirm the success path sends the email and the failure path returns a clean error response without sending false confirmations.",
+        nextSteps:
+          "Exercise 12 shows another intake pattern: using n8n's built-in Form Trigger when the workflow starts from a form instead of a voice tool or webhook.",
+      },
+    },
+    {
       slug: "14-scheduled-reports",
-      title: "Exercise 10: Scheduled Reports & Digest Emails",
+      title: "Exercise 16: Scheduled Reports & Digest Emails",
       description:
         "Build a daily automated report that aggregates your UponAI call data from Google Sheets and emails a formatted summary digest to your team every morning.",
       difficulty: "INTERMEDIATE",
-      order: 14,
+      order: 16,
       tags: "schedule-trigger,reporting,email,digest,automation",
       content: {
         overview:
@@ -1223,7 +1396,7 @@ async function main() {
           "Format and send a professional HTML digest email",
           "Test scheduled workflows without waiting for the schedule",
         ],
-        prerequisites: ["Completed Exercises 4 (email) and 5 (Google Sheets)"],
+        prerequisites: ["Completed Exercises 7 (email) and 8 (Google Sheets)"],
         estimatedTime: "50–70 minutes",
         tools: [
           {
@@ -1282,16 +1455,16 @@ async function main() {
         testingGuide:
           "Run the workflow manually with at least 5 rows of fake call data in your sheet. Verify the stats are calculated correctly and the email looks good. Test the zero-data edge case by running when the sheet is empty.",
         nextSteps:
-          "Exercise 15 covers processing multiple items at once using Split in Batches — essential when you're dealing with large lists of contacts or calls.",
+          "Exercise 17 covers processing multiple items at once using Split in Batches — essential when you're dealing with large lists of contacts or calls.",
       },
     },
     {
       slug: "15-split-in-batches",
-      title: "Exercise 11: Processing Lists with Split in Batches",
+      title: "Exercise 17: Processing Lists with Split in Batches",
       description:
         "Learn to process large arrays of data efficiently. Use Split in Batches to handle contact lists, bulk API calls, and multi-row spreadsheet data without hitting rate limits.",
       difficulty: "INTERMEDIATE",
-      order: 15,
+      order: 17,
       tags: "split-in-batches,arrays,bulk,rate-limiting,loops",
       content: {
         overview:
@@ -1366,7 +1539,7 @@ async function main() {
         testingGuide:
           "Create a test sheet with 12 rows. Set batch size to 3. Verify that exactly 4 batches run (3 contacts each), a 2-second wait occurs between each, results are logged to your sheet, and the 'done' notification fires after all batches complete.",
         nextSteps:
-          "Exercise 16 introduces n8n's built-in Form trigger — a no-code intake form that can capture leads, schedule calls, or collect feedback directly into your workflow.",
+          "Exercise 18 applies batch and control patterns to outbound calling by building a structured campaign engine.",
       },
     },
     {
@@ -1441,18 +1614,18 @@ async function main() {
         testingGuide:
           "Submit the form with your own name and phone number. Verify: (1) you see the thank-you page, (2) Slack notification arrives, (3) Google Sheets row is added, (4) UponAI API returns a call_id (or the actual call comes through).",
         nextSteps:
-          "Exercise 17 covers building complex outbound call campaigns with retry logic, blackout windows, and multi-touch sequences.",
+          "Exercise 13 returns to AI-specific processing by using LLM nodes to analyze transcripts and produce structured outputs.",
       },
     },
 
     // ─── ADVANCED ────────────────────────────────────────────────────────────
     {
       slug: "17-outbound-campaign-engine",
-      title: "Exercise 16: Outbound Call Campaign Engine",
+      title: "Exercise 18: Outbound Call Campaign Engine",
       description:
         "Build a full outbound calling campaign system with retry logic, do-not-call blackout windows, multi-touch sequences, and real-time progress tracking.",
       difficulty: "ADVANCED",
-      order: 16,
+      order: 18,
       tags: "outbound,campaigns,retry-logic,scheduling,sequences",
       content: {
         overview:
@@ -1522,16 +1695,16 @@ async function main() {
         testingGuide:
           "Load 5 test contacts into your sheet. Run the campaign. Verify status updates correctly for each state. Test the blackout window by running outside business hours. Verify max attempt logic stops retrying after 3 attempts.",
         nextSteps:
-          "Exercise 18 covers webhook signature verification and advanced security patterns — essential before putting any of these systems into production.",
+          "Exercise 19 adds live monitoring and alerting so your team can react when active call behavior looks abnormal.",
       },
     },
     {
       slug: "18-live-call-monitoring",
-      title: "Exercise 17: Live Call Monitoring & Alerts",
+      title: "Exercise 19: Live Call Monitoring & Alerts",
       description:
         "Build a real-time call monitoring system that tracks active calls, detects anomalies (unusually long calls, repeated failures), and sends instant alerts with context.",
       difficulty: "ADVANCED",
-      order: 18,
+      order: 19,
       tags: "monitoring,alerts,real-time,anomaly-detection,dashboard",
       content: {
         overview:
@@ -1606,7 +1779,7 @@ async function main() {
         testingGuide:
           "Simulate scenarios by sending fake webhook payloads: (1) send 10 call_started + call_ended events with `call_status: error` to trigger the failure rate alert, (2) send a call with `duration_ms: 700000` (>10 min) to trigger the anomaly alert, (3) wait 3 hours without sending any events and verify the heartbeat fires.",
         nextSteps:
-          "You have now completed the advanced track. Exercise 10 (Production-Ready Platform) ties all patterns together into a complete, deployable system.",
+          "You have now completed the advanced track. Exercise 20 ties all patterns together into a complete, deployable production system.",
       },
     },
   ];
