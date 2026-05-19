@@ -17,19 +17,21 @@ export default async function ExercisePage({
   const { slug } = await params;
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
-  if (session.user.role === "ADMIN") redirect("/admin");
+  const isAdmin = session.user.role === "ADMIN";
 
   const exercise = await prisma.exercise.findUnique({ where: { slug } });
   if (!exercise) notFound();
 
-  const completion = await prisma.exerciseCompletion.findUnique({
-    where: {
-      userId_exerciseId: {
-        userId: session.user.id,
-        exerciseId: exercise.id,
-      },
-    },
-  });
+  const completion = isAdmin
+    ? null
+    : await prisma.exerciseCompletion.findUnique({
+        where: {
+          userId_exerciseId: {
+            userId: session.user.id,
+            exerciseId: exercise.id,
+          },
+        },
+      });
 
   const allExercises = await prisma.exercise.findMany({
     select: { id: true, slug: true, order: true, title: true },
@@ -56,6 +58,7 @@ export default async function ExercisePage({
           tags: exercise.tags,
         }}
         content={content}
+        isAdmin={isAdmin}
         isCompleted={!!completion}
         completedAt={completion?.completedAt?.toISOString() || null}
         prevExercise={prevExercise}

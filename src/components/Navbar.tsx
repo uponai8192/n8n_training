@@ -15,6 +15,7 @@ export function Navbar() {
         { href: "/admin/partners", label: "Partners" },
         { href: "/admin/invites", label: "Invites" },
         { href: "/admin/exercises", label: "Exercises" },
+        { href: "/dashboard", label: "Preview" },
       ]
     : [
         { href: "/dashboard", label: "Exercises" },

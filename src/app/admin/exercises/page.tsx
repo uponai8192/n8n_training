@@ -78,6 +78,17 @@ export default async function AdminExercisesPage() {
                         />
                       </div>
                     )}
+                    <div className="mt-3 flex justify-end">
+                      <Link
+                        href={`/dashboard/exercises/${exercise.slug}`}
+                        className="inline-flex items-center gap-2 rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 transition hover:border-slate-600 hover:text-white"
+                      >
+                        Preview exercise
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>

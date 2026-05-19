@@ -26,6 +26,7 @@ type NavExercise = {
 export function ExerciseClient({
   exercise,
   content,
+  isAdmin,
   isCompleted: initialCompleted,
   completedAt,
   prevExercise,
@@ -33,6 +34,7 @@ export function ExerciseClient({
 }: {
   exercise: ExerciseInfo;
   content: ExerciseContent;
+  isAdmin: boolean;
   isCompleted: boolean;
   completedAt: string | null;
   prevExercise: NavExercise | null;
@@ -78,7 +80,9 @@ export function ExerciseClient({
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-slate-500 mb-6">
-        <Link href="/dashboard" className="hover:text-slate-300 transition">Exercises</Link>
+        <Link href={isAdmin ? "/admin/exercises" : "/dashboard"} className="hover:text-slate-300 transition">
+          {isAdmin ? "Admin Exercises" : "Exercises"}
+        </Link>
         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
@@ -124,7 +128,11 @@ export function ExerciseClient({
 
         {/* Completion action */}
         <div className="mt-4 pt-4 border-t border-slate-800">
-          {isCompleted ? (
+          {isAdmin ? (
+            <div className="rounded-xl border border-blue-500/20 bg-blue-500/10 px-4 py-3 text-sm text-blue-200">
+              Admin preview mode is enabled. Completion tracking and notes are hidden on preview pages.
+            </div>
+          ) : isCompleted ? (
             <div className="flex items-center justify-between">
               <div className="text-sm text-slate-400">
                 Completed on{" "}
@@ -351,7 +359,7 @@ export function ExerciseClient({
         </div>
 
         <div className="flex items-center gap-3">
-          {!isCompleted && (
+          {!isAdmin && !isCompleted && (
             <button
               onClick={handleToggleComplete}
               disabled={marking}

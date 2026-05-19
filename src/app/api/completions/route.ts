@@ -8,6 +8,9 @@ export async function POST(req: Request) {
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  if (session.user.role === "ADMIN") {
+    return NextResponse.json({ error: "Admin preview mode is read-only." }, { status: 403 });
+  }
 
   const { exerciseId, notes } = await req.json();
 
@@ -40,6 +43,9 @@ export async function DELETE(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (session.user.role === "ADMIN") {
+    return NextResponse.json({ error: "Admin preview mode is read-only." }, { status: 403 });
   }
 
   const { searchParams } = new URL(req.url);

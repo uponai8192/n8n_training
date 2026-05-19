@@ -9,15 +9,17 @@ import Link from "next/link";
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
-  if (session.user.role === "ADMIN") redirect("/admin");
+  const isAdmin = session.user.role === "ADMIN";
 
   const exercises = await prisma.exercise.findMany({
     orderBy: { order: "asc" },
   });
 
-  const completions = await prisma.exerciseCompletion.findMany({
-    where: { userId: session.user.id },
-  });
+  const completions = isAdmin
+    ? []
+    : await prisma.exerciseCompletion.findMany({
+        where: { userId: session.user.id },
+      });
 
   const completedIds = new Set(completions.map((c) => c.exerciseId));
   const completionPercent = Math.round((completions.length / exercises.length) * 100);
@@ -37,10 +39,12 @@ export default async function DashboardPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-white">
-            Welcome back, {session.user.name.split(" ")[0]}
+            {isAdmin ? "Course Preview" : `Welcome back, ${session.user.name.split(" ")[0]}`}
           </h1>
           <p className="text-slate-400 mt-1">
-            Work through the exercises at your own pace — complete them in any order.
+            {isAdmin
+              ? "Browse the partner course experience as an admin. Exercise pages open in preview mode."
+              : "Work through the exercises at your own pace — complete them in any order."}
           </p>
         </div>
 
