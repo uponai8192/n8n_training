@@ -284,7 +284,7 @@ const EXERCISES = [
     title: "Exercise 7: Send a Call Summary Email",
     description:
       "Send one clean HTML email after an important call. Use the data from your webhook and IF node to build a message your team can read quickly.",
-    difficulty: "INTERMEDIATE",
+    difficulty: "BEGINNER",
     order: 7,
     tags: "notifications,email,slack,gmail",
     content: {
@@ -937,7 +937,7 @@ async function main() {
       title: "Exercise 4: Mastering n8n Expressions",
       description:
         "Learn to write n8n expressions to reference data from previous nodes, perform calculations, format strings, and work with dates — the core skill that unlocks every advanced workflow.",
-      difficulty: "BEGINNER",
+      difficulty: "INTERMEDIATE",
       order: 4,
       tags: "expressions,variables,data,basics",
       content: {
@@ -1042,7 +1042,7 @@ async function main() {
       title: "Exercise 5: The Code Node — JavaScript in n8n",
       description:
         "Use the Code node to run full JavaScript inside your workflows. Transform complex data structures, loop over arrays, call utility functions, and build logic that expressions can't handle.",
-      difficulty: "BEGINNER",
+      difficulty: "INTERMEDIATE",
       order: 5,
       tags: "code-node,javascript,data-transformation",
       content: {
