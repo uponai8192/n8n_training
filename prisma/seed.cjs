@@ -31,6 +31,7 @@ const EXERCISES = [
       prerequisites: [
         "An n8n account (cloud or self-hosted at n8n.io)",
         "Access to the UponAI admin panel and an agent you can edit",
+        "For Exercise 2 onward, you will need a real UponAI agent plus a SIP connection or phone-number route so you can place real calls through the agent",
       ],
       estimatedTime: "20–30 minutes",
       tools: [
@@ -104,7 +105,7 @@ const EXERCISES = [
       testingGuide:
         "Use the UponAI admin panel Test button at least 3 times while your Webhook node is listening. Verify that the event arrives in n8n each time and that you can identify the main fields in the payload, especially `body.event`, `body.data.call_id`, and the request metadata.",
       nextSteps:
-        "Now that you can receive webhook data, Exercise 2 will show you how to receive and parse real UponAI call events, understanding the specific fields UponAI sends.",
+        "Now that you can receive webhook data, Exercise 2 will show you how to receive and parse real UponAI call events. That next lesson requires a real UponAI agent, a SIP-connected way to call it, and post-call analytics fields configured inside the agent first.",
     },
   },
   {
@@ -117,8 +118,9 @@ const EXERCISES = [
     tags: "uponai,webhook,call-events",
     content: {
       overview:
-        "Most practical UponAI workflows start with one thing: a real `call_analyzed` webhook. That payload includes the transcript, summary, sentiment, and the custom answers your agent collected. In this exercise, you'll connect an agent to n8n, make one real test call, and inspect the exact data you'll use in the next lessons.",
+        "Most practical UponAI workflows start with one thing: a real `call_analyzed` webhook. That payload only appears after a real call runs through a real UponAI agent. In this exercise, you'll connect an agent to n8n, make one real test call through your SIP or phone route, and inspect the exact data you'll use in the next lessons.",
       objectives: [
+        "Understand that this lesson depends on a real UponAI agent and a real call path, not just a mock payload",
         "Configure a UponAI agent webhook URL in the UponAI dashboard",
         "Capture one real `call_analyzed` webhook from a test call",
         "Find the summary, transcript, sentiment, and custom answers in the payload",
@@ -126,7 +128,9 @@ const EXERCISES = [
       ],
       prerequisites: [
         "Completed Exercise 1",
-        "A UponAI account with at least one agent configured",
+        "A real UponAI agent built inside UponAI",
+        "A SIP connection or phone-number route so you can call the agent for a real test call",
+        "Post-call analytics configured inside the agent for `first_name`, `last_name`, `company_name`, `reason_call`, and at least one yes/no routing field such as `emergency_call`, `sales_call`, `roofing_inquiry`, or `job_request`",
         "Your n8n webhook URL ready",
       ],
       estimatedTime: "30–45 minutes",
@@ -146,6 +150,13 @@ const EXERCISES = [
       ],
       steps: [
         {
+          title: "Build the agent and analytics setup first",
+          content:
+            "Before you build the workflow, make sure the agent is actually ready inside UponAI. This course is based on real call data, so you need three things in place first:\n\n- a real UponAI agent built in the UponAI dashboard\n- a SIP connection or phone route so you can place a real call to that agent\n- post-call analytics fields configured in the agent\n\nAt minimum, configure these analytics fields before continuing:\n\n- `first_name`\n- `last_name`\n- `company_name`\n- `reason_call`\n- one or more yes/no routing fields such as `emergency_call`, `sales_call`, `roofing_inquiry`, or `job_request`",
+          warning:
+            "If you skip this setup, the later n8n expressions and IF logic will not make sense because the webhook will not contain the fields the course expects.",
+        },
+        {
           title: "Create a new workflow for UponAI events",
           content:
             "Create a new n8n workflow called 'Exercise 2 - UponAI Events'. Add a Webhook node with HTTP Method set to **POST**. This time, set the path to something meaningful like `uponai-events`.",
@@ -153,28 +164,28 @@ const EXERCISES = [
         {
           title: "Configure the webhook in UponAI",
           content:
-            "In your UponAI dashboard, go to **Agents** → select your agent → **Webhooks** tab. Enter your n8n **Production URL** in the webhook field. For this lesson, enable just **`call_analyzed`** if your agent settings allow event selection.\n\nActivate your n8n workflow by toggling it ON before the next step.",
+            "In your UponAI dashboard, go to **Agents** → select your agent → **Webhooks** tab. Enter your n8n **Production URL** in the webhook field. For this lesson, enable just **`call_analyzed`** if your agent settings allow event selection.\n\nAlso double-check that the same agent already has the post-call analytics fields from the previous step. Activate your n8n workflow by toggling it ON before the next step.",
           warning:
             "UponAI sends webhooks to the Production URL, not the Test URL. Make sure your workflow is **activated** before making a test call.",
         },
         {
           title: "Make a test call to your UponAI agent",
           content:
-            "Use UponAI's built-in call testing in the dashboard, or call your agent's phone number directly. Ask one or two simple questions so the agent produces a summary and transcript. After the call ends, wait for the `call_analyzed` webhook to arrive in n8n.",
+            "Use UponAI's built-in call testing in the dashboard, or call your agent's SIP-connected phone number directly. Ask questions that make the agent collect the analytics fields you configured, such as the caller's first name, company name, reason for calling, and a yes/no routing answer. After the call ends, wait for the `call_analyzed` webhook to arrive in n8n.",
           tip: "In n8n, go to **Executions** in the left sidebar to see all triggered workflow runs. Click any execution to inspect the data.",
         },
         {
           title: "Inspect the real `call_analyzed` payload",
           content:
             "Open the execution triggered by `call_analyzed`. The parts beginners usually care about are the event name, caller details, summary, transcript, and custom analysis answers. A simplified example looks like this:",
-          code: '{\n  "event": "call_analyzed",\n  "call": {\n    "call_id": "call_abc123",\n    "from_number": "+15551234567",\n    "recording_url": "https://example.com/recording",\n    "transcript": "Agent: Thanks for calling...\\nCaller: I have a water leak...",\n    "call_analysis": {\n      "call_summary": "Caller reported a possible emergency water leak and requested a callback.",\n      "user_sentiment": "neutral",\n      "custom_analysis_data": {\n        "first_name": "Jane",\n        "last_name": "Doe",\n        "reason_call": "Water leak in kitchen",\n        "emergency_call": true,\n        "email_address": "jane@example.com"\n      }\n    }\n  }\n}',
+          code: '{\n  "event": "call_analyzed",\n  "call": {\n    "call_id": "call_abc123",\n    "from_number": "+15551234567",\n    "recording_url": "https://example.com/recording",\n    "transcript": "Agent: Thanks for calling...\\nCaller: I have a water leak...",\n    "call_analysis": {\n      "call_summary": "Caller reported a possible emergency water leak and requested a callback.",\n      "user_sentiment": "neutral",\n      "custom_analysis_data": {\n        "first_name": "Jane",\n        "last_name": "Doe",\n        "company_name": "Acme Plumbing",\n        "reason_call": "Water leak in kitchen",\n        "emergency_call": true,\n        "email_address": "jane@example.com"\n      }\n    }\n  }\n}',
           codeLanguage: "json",
         },
         {
           title: "Notice the fields you will use later",
           content:
-            "Inside the execution viewer, expand these paths and make sure you can find them:\n\n- `body.event`\n- `body.call.from_number`\n- `body.call.recording_url`\n- `body.call.call_analysis.call_summary`\n- `body.call.call_analysis.user_sentiment`\n- `body.call.call_analysis.custom_analysis_data`",
-          tip: "If you can find those six locations in the data panel, you're ready for the next lessons.",
+            "Inside the execution viewer, expand these paths and make sure you can find them:\n\n- `body.event`\n- `body.call.from_number`\n- `body.call.recording_url`\n- `body.call.call_analysis.call_summary`\n- `body.call.call_analysis.user_sentiment`\n- `body.call.call_analysis.custom_analysis_data.first_name`\n- `body.call.call_analysis.custom_analysis_data.last_name`\n- `body.call.call_analysis.custom_analysis_data.company_name`\n- `body.call.call_analysis.custom_analysis_data.reason_call`\n- one yes/no field such as `body.call.call_analysis.custom_analysis_data.emergency_call`",
+          tip: "If those fields are missing, fix the agent's post-call analytics configuration first before you keep building in n8n.",
         },
         {
           title: "Add a Set node to extract key fields",
@@ -217,7 +228,10 @@ const EXERCISES = [
         "Route based on a custom analysis field from UponAI",
         "Understand true/false output branches",
       ],
-      prerequisites: ["Completed Exercises 1 and 2"],
+      prerequisites: [
+        "Completed Exercises 1 and 2",
+        "A real `call_analyzed` payload from an UponAI agent that already captures your yes/no routing fields in post-call analytics",
+      ],
       estimatedTime: "30–45 minutes",
       tools: [
         {
@@ -241,7 +255,7 @@ const EXERCISES = [
         {
           title: "Choose one business field to route on",
           content:
-            "Pick one simple field from your custom analysis data. Good beginner examples are:\n\n- `emergency_call`\n- `sales_call`\n- `roofing_inquiry`\n- `job_request`\n\nFor this lesson, use whichever one your agent already fills in consistently.",
+            "Pick one simple yes/no field from your custom analysis data. Good beginner examples are:\n\n- `emergency_call`\n- `sales_call`\n- `roofing_inquiry`\n- `job_request`\n\nFor this lesson, use whichever one your agent already fills in consistently during post-call analytics.",
           tip: "It is better to route on one reliable yes/no field than to build five branches at once.",
         },
         {
@@ -296,7 +310,11 @@ const EXERCISES = [
         "Insert webhook values into the subject and body",
         "Test the email with pinned data before using a real call",
       ],
-      prerequisites: ["Completed Exercises 1–3", "An email account or SMTP credential you can use in n8n"],
+      prerequisites: [
+        "Completed Exercises 1–3",
+        "An email account or SMTP credential you can use in n8n",
+        "A real UponAI agent with post-call analytics fields already configured so your email template has real values to display",
+      ],
       estimatedTime: "45–60 minutes",
       tools: [
         {
@@ -379,7 +397,11 @@ const EXERCISES = [
         "Handle the call_analyzed event to update rows with transcript data",
         "Format dates and durations for spreadsheet readability",
       ],
-      prerequisites: ["Completed Exercises 1–4", "A Google account with Sheets access"],
+      prerequisites: [
+        "Completed Exercises 1–4",
+        "A Google account with Sheets access",
+        "A real UponAI agent with post-call analytics fields already configured so the logged rows contain the expected business data",
+      ],
       estimatedTime: "45–60 minutes",
       tools: [
         {
@@ -462,7 +484,11 @@ const EXERCISES = [
         "Update the contact with call or appointment details",
         "Create a new contact when no match exists",
       ],
-      prerequisites: ["Completed Exercises 1–8", "A GoHighLevel location connected in n8n"],
+      prerequisites: [
+        "Completed Exercises 1–8",
+        "A GoHighLevel location connected in n8n",
+        "A real UponAI agent and call route if you want to test this using live inbound calls instead of manual webhook data",
+      ],
       estimatedTime: "45–60 minutes",
       tools: [
         {
@@ -1226,7 +1252,11 @@ async function main() {
           "Return matching open slots",
           "Extend the search window when the first search is empty",
         ],
-        prerequisites: ["Completed Exercises 1–9", "A calendar system or GoHighLevel calendar connected in n8n"],
+        prerequisites: [
+          "Completed Exercises 1–9",
+          "A calendar system or GoHighLevel calendar connected in n8n",
+          "A real UponAI agent with a SIP or phone route if you want the lookup to be called from a live voice workflow",
+        ],
         estimatedTime: "45–60 minutes",
         tools: [
           {
@@ -1246,6 +1276,11 @@ async function main() {
           },
         ],
         steps: [
+          {
+            title: "Confirm the real-call setup before testing end to end",
+            content:
+              "This lesson can be built with manual webhook data, but if you want to test it the same way a real AI agent will use it, make sure the full call path already exists:\n\n- a real UponAI agent\n- a SIP connection or phone-number route into that agent\n- post-call analytics fields for `first_name`, `last_name`, `company_name`, `reason_call`, and the yes/no fields your later routing will depend on",
+          },
           {
             title: "Receive a date range from a webhook",
             content:
@@ -1312,7 +1347,11 @@ async function main() {
           "Branch on `booked` vs not booked",
           "Send a simple confirmation email after success",
         ],
-        prerequisites: ["Completed Exercise 10", "A connected GoHighLevel calendar and email credential"],
+        prerequisites: [
+          "Completed Exercise 10",
+          "A connected GoHighLevel calendar and email credential",
+          "A contact lookup path or real UponAI call workflow that can provide the customer data needed for booking",
+        ],
         estimatedTime: "45–60 minutes",
         tools: [
           {
@@ -1332,6 +1371,11 @@ async function main() {
           },
         ],
         steps: [
+          {
+            title: "Keep the real-call prerequisites in mind",
+            content:
+              "Booking only feels real when the request comes from a real voice flow. For end-to-end testing, that means:\n\n- a real UponAI agent built in UponAI\n- a SIP connection or phone route so the agent can take a real call\n- post-call analytics fields inside the agent for `first_name`, `last_name`, `company_name`, `reason_call`, and yes/no answers used later in routing",
+          },
           {
             title: "Receive the booking request",
             content:
