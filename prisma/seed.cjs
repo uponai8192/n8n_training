@@ -914,8 +914,8 @@ const EXERCISES = [
 async function main() {
   console.log("Seeding database...");
 
-  const adminEmail = process.env.ADMIN_EMAIL || "admin@n8nexercises.com";
-  const adminPassword = process.env.ADMIN_PASSWORD || "Admin@123!";
+  const adminEmail = process.env.ADMIN_EMAIL || "jody@uponai.com";
+  const adminPassword = process.env.ADMIN_PASSWORD || "Axtel1234!";
   const hashedPassword = await bcrypt.hash(adminPassword, 12);
 
   const admin = await prisma.user.upsert({
