@@ -77,7 +77,7 @@ export function ExerciseClient({
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-slate-500 mb-6">
         <Link href={isAdmin ? "/admin/exercises" : "/dashboard"} className="hover:text-slate-300 transition">

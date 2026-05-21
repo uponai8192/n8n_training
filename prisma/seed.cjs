@@ -53,8 +53,8 @@ const EXERCISES = [
         {
           title: "Create and name the workflow clearly",
           content:
-            "Open n8n, create a new workflow, and immediately rename it in the upper left. Use a name that clearly matches the agent or client, such as `PH Emergency - Main Webhook`.",
-          tip: "Double-click the workflow name in the upper left to rename it. Clear naming matters once you have many workflows.",
+            "Open n8n, create a new workflow, and immediately rename it in the upper left. Use a name that clearly matches what you are building, such as `PH Emergency - Main Webhook`. Then, to the right of the workflow name, add tags and tag the workflow with your own name so it is easy to identify who built it.",
+          tip: "Double-click the workflow name in the upper left to rename it. The tags are to the right of the workflow name. Clear names and personal tags matter once many people are building workflows.",
         },
         {
           title: "Add one webhook and make it POST",
