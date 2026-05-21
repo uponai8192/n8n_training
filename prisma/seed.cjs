@@ -13,118 +13,124 @@ const prisma = new PrismaClient({ adapter });
 const EXERCISES = [
   {
     slug: "01-your-first-webhook",
-    title: "Exercise 1: Your First Webhook",
+    title: "Exercise 1: Production Webhook Setup",
     description:
-      "Set up your first n8n webhook node and receive a test event from the UponAI admin panel. Learn how webhooks work as the entry point for all UponAI automations.",
+      "Build the first webhook the right way for UponAI: POST only, activated, connected to the production URL, and tested from the agent portal instead of Postman or Listen for Test Event.",
     difficulty: "BEGINNER",
     order: 1,
-    tags: "webhook,basics,n8n",
+    tags: "webhook,production-url,activation,agent-testing",
     content: {
       overview:
-        "Webhooks are the backbone of all UponAI automation. Every time a call starts, ends, or a custom event fires, UponAI sends a POST request to a URL you define. In this exercise, you'll create your first webhook in n8n and learn to capture that incoming data.",
+        "This module is about setting up the webhook correctly the first time. The team should not be learning Postman first. They should learn how to create a POST webhook in n8n, activate it, place the production URL in the UponAI agent, and test it from the agent portal. That is the real workflow they will use.",
       objectives: [
-        "Create and activate a Webhook node in n8n",
-        "Understand the difference between test and production webhook URLs",
-        "Send a test event from the UponAI admin panel and see the data appear in n8n",
-        "Understand the basic n8n canvas and workflow structure",
+        "Create a Webhook node that uses POST",
+        "Understand why the webhook must be activated before it can work",
+        "Use the production URL in the agent instead of the test URL",
+        "Test from the agent portal instead of using Listen for Test Event or Postman",
+        "Name the workflow clearly and avoid overlapping webhooks between agents",
       ],
       prerequisites: [
         "An n8n account (cloud or self-hosted at n8n.io)",
-        "Access to the UponAI admin panel and an agent you can edit",
-        "For Exercise 2 onward, you will need a real UponAI agent plus a SIP connection or phone-number route so you can place real calls through the agent",
+        "Access to the UponAI admin panel",
+        "A real UponAI agent already built in UponAI",
+        "For live testing after this module, a SIP connection or phone-number route so you can call the agent",
       ],
       estimatedTime: "20–30 minutes",
       tools: [
         {
           name: "Webhook Node",
           description:
-            "The Webhook node is the most fundamental trigger in n8n. It listens for incoming HTTP requests and starts your workflow when one arrives. It supports GET, POST, PUT, PATCH, and DELETE methods.",
+            "The Webhook node starts the workflow when UponAI sends data into n8n. For this training flow, use POST.",
           docUrl: "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/",
         },
         {
-          name: "n8n Canvas",
+          name: "UponAI Agent Test Button",
           description:
-            "The n8n canvas is the visual workflow builder. Nodes are connected left-to-right by drawing connections between output and input ports. You can zoom, pan, and organize your workflow freely.",
+            "Use the test button inside the agent portal to send a sample webhook. Do not start this module with Postman or Listen for Test Event.",
         },
       ],
       steps: [
         {
-          title: "Log into n8n and create a new workflow",
+          title: "Create and name the workflow clearly",
           content:
-            "Open your n8n instance and click **+ New Workflow** in the top-right corner. Give it a name like 'Exercise 1 - First Webhook'. The canvas will open empty and ready for nodes.",
-          tip: "Use descriptive workflow names from the start — when you have 50+ workflows, you'll thank yourself.",
+            "Open n8n, create a new workflow, and immediately rename it in the upper left. Use a name that clearly matches the agent or client, such as `PH Emergency - Main Webhook`.",
+          tip: "Double-click the workflow name in the upper left to rename it. Clear naming matters once you have many workflows.",
         },
         {
-          title: "Add a Webhook node",
+          title: "Add one webhook and make it POST",
           content:
-            "Click the **+** button in the center of the canvas (or press **Tab**) to open the node panel. Search for **Webhook** and click it to add it. This node will appear on your canvas as the starting point of your workflow.",
-        },
-        {
-          title: "Configure the Webhook node",
-          content:
-            'Double-click the Webhook node to open its settings panel on the right. Set the **HTTP Method** to **POST**. Leave the **Path** as the default (a random string) or set it to something memorable like `my-first-webhook`. The node will show you two URLs:\n\n- **Test URL** — only works while you\'re in "listening" mode in the editor\n- **Production URL** — works after the workflow is activated',
-          tip: "During development, always use the Test URL. The Production URL requires you to activate the workflow with the toggle in the top-right.",
-        },
-        {
-          title: "Start listening for requests",
-          content:
-            'Click the **Listen for test event** button that appears at the bottom of the Webhook node. The node will now show a spinning indicator — it\'s waiting for an incoming webhook event. You have 120 seconds before it times out.',
+            "Add a Webhook node as the first node. Set the **HTTP Method** to **POST**. Do not use GET for this training flow.",
           warning:
-            "The Webhook node only listens for one request at a time in test mode. After receiving a request, you'll need to click it again to listen for another.",
+            "Always make the webhook a POST request in this workflow pattern.",
         },
         {
-          title: "Send a test event from the UponAI admin panel",
+          title: "Use the production URL, not the test URL",
           content:
-            "Copy the **Test URL** from the Webhook node. In the UponAI admin panel, open an agent, paste that URL into the webhook field, and click the **Test** button. UponAI will send a sample webhook event to n8n so you can see the payload without using Postman or curl.",
-          code: '{\n  "event": "test_event",\n  "message": "Hello from UponAI test!",\n  "timestamp": "2024-01-01T00:00:00Z",\n  "data": {\n    "call_id": "test-123",\n    "agent_id": "agent-abc"\n  }\n}',
-          codeLanguage: "json",
-          tip: "For beginner users, stick with the built-in Test button in the UponAI admin panel. It is the simplest way to confirm the webhook is connected correctly.",
+            "The Webhook node shows both a test URL and a production URL. For agent setup, use the **production URL** inside UponAI. Do not paste the test URL into the agent.",
+          warning:
+            "The training should strongly emphasize this: the agent uses the production URL, not the test URL.",
         },
         {
-          title: "Inspect the received data",
+          title: "Activate the workflow",
           content:
-            "After you click Test in the UponAI admin panel, n8n will display the received data below the Webhook node. Click on the node to see the full data structure. You'll see the webhook body nested under `body`, plus metadata like `headers`, `method`, and `path`.",
-          tip: "Notice the structure: `$json.body.event`, `$json.body.data.call_id`. This dot-notation is how you reference data in n8n expressions later.",
+            "Turn the workflow on using the activation toggle. The webhook will not function until the workflow is active.",
+          warning:
+            "A webhook that is not active will not work, even if the node looks configured correctly.",
         },
         {
-          title: "Add a No Op node (optional)",
+          title: "Place the production URL in the agent",
           content:
-            'To complete the workflow, add a **No Operation, do nothing** node connected to the Webhook. This is useful as a placeholder while building. Search for "no op" in the node panel and connect it to the Webhook output.',
+            "In the UponAI agent settings, paste the production webhook URL into the webhook field for that agent. Each agent should have its own webhook path. Do not duplicate or overlap webhooks between agents unless you explicitly mean to share them.",
+          tip: "One agent, one webhook path is the safest beginner rule.",
         },
         {
-          title: "Save your workflow",
+          title: "Test from the agent portal",
           content:
-            "Press **Cmd+S** (Mac) or **Ctrl+S** (Windows) to save. Your workflow is now saved in draft mode. When you're ready to use it with real tools, you'll activate it with the toggle switch.",
+            "Use the **test button inside the agent portal** to fire the webhook. Do not use **Listen for Test Event** in this module, and do not use Postman. The goal is to teach the easiest real workflow for this team.",
+          tip: "If no real call has ever been made, the test webhook may send fake cached data. That is okay for this first module, but later modules should use one real call.",
+        },
+        {
+          title: "Check that the webhook fired",
+          content:
+            "Open the execution and verify that data came in. A successful run should show a completed execution. You are only checking that the webhook path, activation state, and agent connection are correct.",
+          tip: "A 200 response code usually means the webhook request succeeded.",
+        },
+        {
+          title: "Annotate the workflow with a sticky note",
+          content:
+            "Add a sticky note near the webhook that says something like: `POST only`, `Use production URL`, and `Workflow must be active`.",
+          tip: "Use sticky notes to document setup rules directly in the workflow so people do not forget them later.",
         },
       ],
       aiTips: [
-        "Ask ChatGPT or Claude: 'Explain how n8n webhook URLs work and the difference between test and production mode.'",
-        "Use AI to explain what fields matter most in a beginner webhook test: 'What should I look for first in a basic UponAI webhook payload?'",
-        "If you're stuck: paste the n8n error message into an AI chat for instant troubleshooting help.",
+        "Ask AI: 'Explain in plain English why an n8n webhook must be active and why an UponAI agent should use the production URL instead of the test URL.'",
+        "Ask AI: 'Write a short sticky note warning for a webhook setup module: POST only, activate the workflow, use production URL.'",
+        "If the webhook fails, paste the exact error into AI and ask what setup step is most likely missing.",
       ],
       testingGuide:
-        "Use the UponAI admin panel Test button at least 3 times while your Webhook node is listening. Verify that the event arrives in n8n each time and that you can identify the main fields in the payload, especially `body.event`, `body.data.call_id`, and the request metadata.",
+        "Use the agent portal test button and confirm the webhook fires while the workflow is active. Then deactivate the workflow and confirm you understand why it would stop working. Reactivate it before moving on.",
       nextSteps:
-        "Now that you can receive webhook data, Exercise 2 will show you how to receive and parse real UponAI call events. That next lesson requires a real UponAI agent, a SIP-connected way to call it, and post-call analytics fields configured inside the agent first.",
+        "Exercise 2 switches from sample webhook tests to one real call. That module teaches how to make the call, inspect execution history, and pin the payload so you only have to call the agent once.",
     },
   },
   {
     slug: "02-uponai-call-events",
-    title: "Exercise 2: Receiving UponAI Call Events",
+    title: "Exercise 2: Real Call Data, Executions, and Pinning",
     description:
-      "Connect UponAI to n8n and capture one real `call_analyzed` event. Learn where the call summary, transcript, and custom answers live in the webhook payload.",
+      "Make one real call through your UponAI agent, inspect the real `call_analyzed` execution, and pin that payload so you can build the rest of the workflow without making repeated calls.",
     difficulty: "BEGINNER",
     order: 2,
     tags: "uponai,webhook,call-events",
     content: {
       overview:
-        "Most practical UponAI workflows start with one thing: a real `call_analyzed` webhook. That payload only appears after a real call runs through a real UponAI agent. In this exercise, you'll connect an agent to n8n, make one real test call through your SIP or phone route, and inspect the exact data you'll use in the next lessons.",
+        "This module teaches the working pattern your team actually needs: make one real call, inspect the execution, copy it into the editor, pin the data, and build from there. The goal is to stop people from making repeated calls just to keep testing.",
       objectives: [
-        "Understand that this lesson depends on a real UponAI agent and a real call path, not just a mock payload",
-        "Configure a UponAI agent webhook URL in the UponAI dashboard",
-        "Capture one real `call_analyzed` webhook from a test call",
-        "Find the summary, transcript, sentiment, and custom answers in the payload",
-        "Use the Set node to extract specific fields",
+        "Make one real call through a real UponAI agent",
+        "Confirm the `call_analyzed` event arrived in execution history",
+        "Find the post-call analytics fields inside the webhook payload",
+        "Copy execution data into the editor and pin it",
+        "Understand the difference between fake cached test data and real call data",
+        "Use execution colors and node states to troubleshoot problems",
       ],
       prerequisites: [
         "Completed Exercise 1",
@@ -150,83 +156,89 @@ const EXERCISES = [
       ],
       steps: [
         {
-          title: "Build the agent and analytics setup first",
+          title: "Build the agent and post-call analytics first",
           content:
             "Before you build the workflow, make sure the agent is actually ready inside UponAI. This course is based on real call data, so you need three things in place first:\n\n- a real UponAI agent built in the UponAI dashboard\n- a SIP connection or phone route so you can place a real call to that agent\n- post-call analytics fields configured in the agent\n\nAt minimum, configure these analytics fields before continuing:\n\n- `first_name`\n- `last_name`\n- `company_name`\n- `reason_call`\n- one or more yes/no routing fields such as `emergency_call`, `sales_call`, `roofing_inquiry`, or `job_request`",
           warning:
             "If you skip this setup, the later n8n expressions and IF logic will not make sense because the webhook will not contain the fields the course expects.",
         },
         {
-          title: "Create a new workflow for UponAI events",
+          title: "Confirm the webhook is still POST, active, and using production URL",
           content:
-            "Create a new n8n workflow called 'Exercise 2 - UponAI Events'. Add a Webhook node with HTTP Method set to **POST**. This time, set the path to something meaningful like `uponai-events`.",
+            "Before you make a real call, quickly confirm the setup from Module 1:\n\n- webhook method is POST\n- workflow is active\n- agent points to the production URL\n\nIf any of those are wrong, do not continue yet.",
         },
         {
-          title: "Configure the webhook in UponAI",
+          title: "Use your own contact details for testing",
           content:
-            "In your UponAI dashboard, go to **Agents** → select your agent → **Webhooks** tab. Enter your n8n **Production URL** in the webhook field. For this lesson, enable just **`call_analyzed`** if your agent settings allow event selection.\n\nAlso double-check that the same agent already has the post-call analytics fields from the previous step. Activate your n8n workflow by toggling it ON before the next step.",
-          warning:
-            "UponAI sends webhooks to the Production URL, not the Test URL. Make sure your workflow is **activated** before making a test call.",
+            "When you make the test call, use your own phone number, email address, and other personal test details. Do not send notifications to clients while learning.",
+          tip: "Test in a safe environment first so you do not create duplicate notifications or customer confusion.",
         },
         {
-          title: "Make a test call to your UponAI agent",
+          title: "Make one real call through the agent",
           content:
             "Use UponAI's built-in call testing in the dashboard, or call your agent's SIP-connected phone number directly. Ask questions that make the agent collect the analytics fields you configured, such as the caller's first name, company name, reason for calling, and a yes/no routing answer. After the call ends, wait for the `call_analyzed` webhook to arrive in n8n.",
-          tip: "In n8n, go to **Executions** in the left sidebar to see all triggered workflow runs. Click any execution to inspect the data.",
+          tip: "One real call is enough for this module. Do not keep calling over and over once you have a good payload.",
         },
         {
-          title: "Inspect the real `call_analyzed` payload",
+          title: "Open execution history and find the real analyzed call",
           content:
-            "Open the execution triggered by `call_analyzed`. The parts beginners usually care about are the event name, caller details, summary, transcript, and custom analysis answers. A simplified example looks like this:",
-          code: '{\n  "event": "call_analyzed",\n  "call": {\n    "call_id": "call_abc123",\n    "from_number": "+15551234567",\n    "recording_url": "https://example.com/recording",\n    "transcript": "Agent: Thanks for calling...\\nCaller: I have a water leak...",\n    "call_analysis": {\n      "call_summary": "Caller reported a possible emergency water leak and requested a callback.",\n      "user_sentiment": "neutral",\n      "custom_analysis_data": {\n        "first_name": "Jane",\n        "last_name": "Doe",\n        "company_name": "Acme Plumbing",\n        "reason_call": "Water leak in kitchen",\n        "emergency_call": true,\n        "email_address": "jane@example.com"\n      }\n    }\n  }\n}',
-          codeLanguage: "json",
+            "Go to **Executions** and open the run from your real call. This is where you verify the workflow actually received `call_analyzed` and where you inspect what happened at each step.",
+          tip: "Green lines show successful data flow. Red items usually mean missing values, wrong expressions, or bad setup.",
         },
         {
-          title: "Notice the fields you will use later",
+          title: "Know the difference between fake test data and real call data",
           content:
-            "Inside the execution viewer, expand these paths and make sure you can find them:\n\n- `body.event`\n- `body.call.from_number`\n- `body.call.recording_url`\n- `body.call.call_analysis.call_summary`\n- `body.call.call_analysis.user_sentiment`\n- `body.call.call_analysis.custom_analysis_data.first_name`\n- `body.call.call_analysis.custom_analysis_data.last_name`\n- `body.call.call_analysis.custom_analysis_data.company_name`\n- `body.call.call_analysis.custom_analysis_data.reason_call`\n- one yes/no field such as `body.call.call_analysis.custom_analysis_data.emergency_call`",
-          tip: "If those fields are missing, fix the agent's post-call analytics configuration first before you keep building in n8n.",
+            "If you only use the agent test button before any real call has happened, the webhook may send fake cached data. That is fine for a smoke test, but this module wants a real call payload because the later modules depend on real post-call analytics values.",
+          warning:
+            "Do not assume the fake cached payload proves your analytics prompts are working. Only a real call confirms that.",
         },
         {
-          title: "Add a Set node to extract key fields",
+          title: "Search the webhook payload from the bottom webhook data",
           content:
-            "Connect a **Set** node after the Webhook. Create a few clean fields so the rest of your workflow is easier to read:\n\n- **event_type** → `{{ $json.body.event }}`\n- **caller_name** → `{{ $json.body.call.call_analysis.custom_analysis_data.first_name }} {{ $json.body.call.call_analysis.custom_analysis_data.last_name }}`\n- **reason_for_call** → `{{ $json.body.call.call_analysis.custom_analysis_data.reason_call }}`\n- **caller_phone** → `{{ $json.body.call.from_number }}`\n- **call_summary** → `{{ $json.body.call.call_analysis.call_summary }}`\n- **emergency_call** → `{{ $json.body.call.call_analysis.custom_analysis_data.emergency_call }}`",
-          tip: "Click the ƒ (function) icon next to any field to switch to Expression mode, which lets you reference data from previous nodes using {{ }} syntax.",
+            "When you are searching for fields, scroll to the bottom where the webhook data is stored. If you are inside other nodes such as `If` nodes, close them out and go back to the webhook payload itself. That is where the source data lives.",
+          tip: "The fields you must be able to find are `first_name`, `last_name`, `company_name`, `reason_call`, and your yes/no routing fields.",
         },
         {
-          title: "Pin this real data so you can keep building",
+          title: "Copy the execution into the editor and pin it",
           content:
-            "Right-click the Webhook node and choose **Pin Data** after you capture a real `call_analyzed` event. That lets you keep building the workflow without making a new phone call every time you test.",
-          tip: "Pinned data is the beginner-friendly replacement for tools like Postman. Capture one real call once, then keep building with it.",
+            "Use **Copy to Editor** from the execution so the payload is available directly in the workflow editor. Then pin that data on the webhook node. The pinned data will stay in the editor and is what lets you build and troubleshoot without making repeated calls.",
+          tip: "Pinned data appears in blue. Once it is pinned, you can keep executing and testing repeatedly from the same payload.",
+        },
+        {
+          title: "Execute nodes individually while building",
+          content:
+            "Test nodes one at a time instead of running the entire workflow blindly. If a node turns red, inspect the missing value or bad expression. If the path is green, the data flow is working.",
+          tip: "This is the fastest way to diagnose where the workflow actually broke.",
         },
       ],
       aiTips: [
-        "Ask AI: 'Explain this UponAI webhook payload to me in plain English and tell me which fields matter most first.'",
-        "Ask AI: 'Write an n8n expression that combines first name and last name, even if one of them is blank.'",
-        "Ask AI: 'What is the difference between call_summary, transcript, and custom_analysis_data in an UponAI webhook?'",
+        "Ask AI: 'Explain this real `call_analyzed` payload in plain English and tell me where the analytics fields are located.'",
+        "Ask AI: 'What is the difference between fake cached test data and a real webhook execution from one live call?'",
+        "If a node turns red, paste the exact failing expression into AI and ask what field path is wrong.",
       ],
       testingGuide:
-        "Make one real test call, then confirm your Set node shows the cleaned-up fields correctly. After that, pin the data and re-run the workflow from the editor until the fields look right.",
+        "Make one real call, open the execution, copy it into the editor, and pin it. After that, prove you can run the workflow repeatedly without making another call.",
       nextSteps:
-        "In Exercise 3, you'll use one simple IF node to decide what to do with a call based on a real business answer such as `emergency_call`, `sales_call`, or `roofing_inquiry`.",
+        "Exercise 3 uses that pinned real call data to build the routing structure: first `if call was analyzed`, then chained `If` modules for sales, emergency, accounting, and other branches.",
     },
   },
   {
     slug: "03-conditional-routing",
-    title: "Exercise 3: Conditional Routing with IF Nodes",
+    title: "Exercise 3: Call Analyzed Gate and Chained IF Routing",
     description:
-      "Use one simple IF node to split calls into two paths based on a real answer from the call, like `emergency_call` or `sales_call`.",
+      "Start with `if call was analyzed`, then chain multiple `If` nodes together to route calls into business branches like emergency, sales, and accounting.",
     difficulty: "BEGINNER",
     order: 3,
     tags: "if-node,conditional,routing,call-status",
     content: {
       overview:
-        "Most teams do not need a huge routing tree on day one. They just need one business decision: if the call matches a certain condition, do one thing; otherwise do another. In this exercise, you'll take the real `call_analyzed` data from Exercise 2 and use one IF node to split the workflow into two easy-to-understand paths.",
+        "This module teaches the routing pattern your team described in the meeting. Do not start by testing random branches. Start by checking that the call was analyzed. Then take the TRUE path and keep chaining more `If` nodes for each business condition you care about.",
       objectives: [
-        "Add and configure one IF node",
-        "Create a TRUE branch and a FALSE branch",
-        "Route based on a custom analysis field from UponAI",
-        "Understand true/false output branches",
+        "Add an `If` node that checks whether the call was analyzed",
+        "Chain TRUE outputs from one `If` into the next `If`",
+        "Build multiple conditional branches such as emergency, sales, and accounting",
+        "Search the correct webhook fields instead of hunting inside downstream nodes",
+        "Understand webhook naming issues when templates reference the wrong webhook node",
       ],
       prerequisites: [
         "Completed Exercises 1 and 2",
@@ -248,49 +260,62 @@ const EXERCISES = [
       ],
       steps: [
         {
-          title: "Duplicate your Exercise 2 workflow",
+          title: "Duplicate the real-call workflow from Exercise 2",
           content:
-            "Open your Exercise 2 workflow and save a copy. Rename it 'Exercise 3 - Conditional Routing'. Keep the Webhook and Set nodes exactly as they are.",
+            "Open your Exercise 2 workflow and save a copy. Rename it clearly, such as `Main Routing - Emergency and Sales`. Keep the pinned real payload in place.",
         },
         {
-          title: "Choose one business field to route on",
+          title: "Always start with `if call was analyzed`",
           content:
-            "Pick one simple yes/no field from your custom analysis data. Good beginner examples are:\n\n- `emergency_call`\n- `sales_call`\n- `roofing_inquiry`\n- `job_request`\n\nFor this lesson, use whichever one your agent already fills in consistently during post-call analytics.",
-          tip: "It is better to route on one reliable yes/no field than to build five branches at once.",
-        },
-        {
-          title: "Add one IF node after the Set node",
-          content:
-            "After the Set node, add an **IF** node. Configure it to check your chosen field. Example:\n\n- **Value 1**: `{{ $json.emergency_call }}`\n- **Operation**: `is true`\n\nIf your field is text instead of true/false, use `equals` and compare it to the value your agent returns.",
+            "Your first conditional check should be whether the webhook event is the analyzed call you actually care about. Example:\n\n- **Value 1**: `{{ $json.body.event }}`\n- **Operation**: `equals`\n- **Value 2**: `call_analyzed`\n\nThis keeps incomplete or irrelevant events from flowing into the rest of the logic.",
           warning:
-            "If the preview says `undefined`, go back to the Set node and make sure you extracted the field correctly first.",
+            "Do not build the rest of the workflow until this first gate is in place.",
         },
         {
-          title: "Label the two outputs clearly",
+          title: "Chain the TRUE output into the next IF node",
           content:
-            "Add a **No Operation** node to each side of the IF node and rename them to something human-readable, such as:\n\n- TRUE branch: `Emergency`\n- FALSE branch: `Non-Emergency`\n\nThese are just placeholders for now, but they make the workflow much easier to follow.",
+            "After the first `If` node, take the **TRUE** output and connect it into the next `If` node. This is the routing pattern you want repeated:\n\n1. `if call_analyzed`\n2. TRUE -> `if emergency`\n3. TRUE -> `if sales`\n4. TRUE -> `if accounting`\n\nEach TRUE path feeds the next condition.",
+          tip: "This is the exact place many people get lost. Keep following the TRUE output forward.",
         },
         {
-          title: "Test the TRUE branch with pinned data",
+          title: "Build multiple business branches",
           content:
-            "Use the real webhook data you pinned in Exercise 2. If needed, edit the pinned JSON so your chosen field is set to the TRUE value. Run the workflow and confirm the item goes down the TRUE branch.",
-          tip: "You can edit pinned data directly in n8n. This is the fastest beginner-friendly way to test conditions.",
+            "Add separate conditional checks for the business answers your agent returns. Common examples from your workflows are:\n\n- `emergency_call`\n- `sales_call`\n- `accounting_call`\n- `roofing_inquiry`\n- `job_request`\n\nEach one should be clearly labeled so the team knows what that branch means.",
         },
         {
-          title: "Test the FALSE branch the same way",
+          title: "Search the payload from the webhook, not from the IF nodes",
           content:
-            "Change the same field in the pinned data to the FALSE value and run the workflow again. Confirm the item goes down the FALSE branch. Once both sides work, you are ready to replace the placeholder nodes with real actions.",
+            "When you need to find the correct field path, close out of the `If` node views and go back to the webhook payload. Scroll to the bottom where the webhook data is stored and search there. The source data comes from the webhook, not from the `If` nodes.",
+          tip: "This avoids a common mistake: searching for fields in the wrong node output and then writing bad expressions.",
+        },
+        {
+          title: "Watch webhook naming carefully in template modules",
+          content:
+            "If you add multiple webhooks in one workflow, n8n auto-names them `Webhook`, `Webhook1`, `Webhook2`, and so on. Template modules may still reference an older webhook name like `Webhook3`. Fix those references if your current workflow only uses one webhook.",
+          warning:
+            "Wrong webhook references are a common reason templates break even though the logic looks correct.",
+        },
+        {
+          title: "Test each branch one step at a time",
+          content:
+            "Execute the nodes individually using the pinned data. Confirm the call passes through the first `if call_analyzed` gate, then through each later branch as expected. If a node turns red, inspect the field path or the expected value.",
+          tip: "Green execution lines mean the data flowed successfully. Red modules usually mean a missing field, wrong value, or wrong reference.",
+        },
+        {
+          title: "Add sticky notes for branch instructions",
+          content:
+            "Place sticky notes near important branch sections, such as `All TRUE outputs continue forward` or `Search webhook payload, not IF output`. These reminders help newer users avoid the same mistakes repeatedly.",
         },
       ],
       aiTips: [
-        "Ask AI: 'Help me choose the best yes/no field in this UponAI payload to route on first.'",
-        "Ask AI: 'In simple terms, what is the difference between an IF node's TRUE branch and FALSE branch in n8n?'",
-        "Ask AI: 'Write an n8n expression that treats blank, false, and missing values safely.'",
+        "Ask AI: 'Write the cleanest n8n IF expression for checking whether `body.event` equals `call_analyzed`.'",
+        "Ask AI: 'Help me map these yes/no analytics fields into a chained IF routing structure for emergency, sales, and accounting.'",
+        "Ask AI: 'Why would an n8n template break if it references Webhook3 but my workflow only has one webhook node?'",
       ],
       testingGuide:
-        "Test both branches using pinned data before you use real calls again. Your goal is simple: prove that one value goes left and the opposite value goes right every time.",
+        "Using the pinned payload, prove that the call first passes `if call_analyzed`, then routes correctly based on your yes/no fields. Use your own contact info and test-mode destinations so no client receives accidental notifications while you are learning.",
       nextSteps:
-        "Exercise 4 slows down for one essential skill: expressions. Once you can read values cleanly, the later action steps become much easier to build.",
+        "Exercise 4 slows down for one essential skill: expressions. Once the routing structure is clear, expressions make it much easier to pull the right values into later email, SMS, and CRM branches.",
     },
   },
   {
