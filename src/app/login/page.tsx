@@ -151,7 +151,7 @@ function LoginForm() {
                     We sent a sign-in link to
                   </p>
                   <p className="text-sm font-medium text-white mb-5">{magicEmail}</p>
-                  <p className="text-xs text-slate-500 mb-6">Link expires in 15 minutes. Check your spam folder if you don&apos;t see it.</p>
+                  <p className="text-xs text-slate-500 mb-6">Link expires in 60 minutes. Check your spam folder if you don&apos;t see it.</p>
 
                   {/* Dev mode: show the link directly */}
                   {devLink && (

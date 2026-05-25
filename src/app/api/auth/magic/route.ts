@@ -35,7 +35,7 @@ async function sendMagicLinkEmail(email: string, url: string) {
           <p style="margin: 4px 0 0; color: #94a3b8; font-size: 14px;">Exercise Platform</p>
         </div>
         <p style="color: #cbd5e1; font-size: 15px; line-height: 1.6; margin: 0 0 24px;">
-          Click the button below to sign in. This link expires in <strong style="color: #fff;">15 minutes</strong> and can only be used once.
+          Click the button below to sign in. This link expires in <strong style="color: #fff;">60 minutes</strong> and can only be used once.
         </p>
         <div style="text-align: center; margin-bottom: 24px;">
           <a href="${url}" style="display: inline-block; padding: 14px 32px; background: #f97316; color: #fff; font-weight: 600; font-size: 15px; text-decoration: none; border-radius: 10px;">
@@ -79,7 +79,7 @@ export async function POST(req: Request) {
     });
 
     const token = crypto.randomBytes(32).toString("hex");
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 60 minutes
 
     await prisma.magicLink.create({
       data: { email: normalizedEmail, token, expiresAt },
