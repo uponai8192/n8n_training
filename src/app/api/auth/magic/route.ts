@@ -21,7 +21,7 @@ async function sendMagicLinkEmail(email: string, url: string) {
   const { Resend } = await import("resend");
   const resend = new Resend(apiKey);
 
-  await resend.emails.send({
+  const result = await resend.emails.send({
     from: process.env.RESEND_FROM_EMAIL ?? "noreply@uponai.com",
     to: email,
     subject: "Your sign-in link — N8N + UponAI",
@@ -48,6 +48,10 @@ async function sendMagicLinkEmail(email: string, url: string) {
       </div>
     `,
   });
+
+  if (result.error) {
+    throw new Error(`Resend failed to send magic link: ${result.error.message}`);
+  }
 }
 
 export async function POST(req: Request) {
