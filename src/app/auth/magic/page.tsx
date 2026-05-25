@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import { signIn, getSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -9,6 +9,7 @@ function MagicLinkVerifier() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
+  const hasStartedVerification = useRef(false);
 
   const [status, setStatus] = useState<"verifying" | "success" | "error">("verifying");
   const [errorMsg, setErrorMsg] = useState("");
@@ -19,6 +20,12 @@ function MagicLinkVerifier() {
       setErrorMsg("No token provided.");
       return;
     }
+
+    if (hasStartedVerification.current) {
+      return;
+    }
+
+    hasStartedVerification.current = true;
 
     async function verify() {
       const result = await signIn("credentials", {
