@@ -37,6 +37,9 @@ async function sendMagicLinkEmail(email: string, url: string) {
         <p style="color: #cbd5e1; font-size: 15px; line-height: 1.6; margin: 0 0 24px;">
           Click the button below to sign in. This link expires in <strong style="color: #fff;">60 minutes</strong> and can only be used once.
         </p>
+        <p style="color: #94a3b8; font-size: 13px; line-height: 1.6; margin: 0 0 24px;">
+          If you requested more than one magic link, <strong style="color: #fff;">only the newest email will work</strong>. Older links are invalidated automatically.
+        </p>
         <div style="text-align: center; margin-bottom: 24px;">
           <a href="${url}" style="display: inline-block; padding: 14px 32px; background: #f97316; color: #fff; font-weight: 600; font-size: 15px; text-decoration: none; border-radius: 10px;">
             Sign in to Platform
