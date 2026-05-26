@@ -17,6 +17,7 @@ export default async function InvitesPage() {
   const invitesData = invites.map((i) => ({
     id: i.id,
     email: i.email,
+    role: i.role,
     token: i.token,
     used: i.used,
     createdAt: i.createdAt.toISOString(),

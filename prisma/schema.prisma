@@ -29,6 +29,7 @@ model MagicLink {
 model Invite {
   id        String   @id @default(cuid())
   email     String
+  role      String   @default("PARTNER")
   token     String   @unique
   used      Boolean  @default(false)
   createdAt DateTime @default(now())

@@ -15,5 +15,5 @@ export async function GET(req: Request) {
     return NextResponse.json({ valid: false });
   }
 
-  return NextResponse.json({ valid: true, email: invite.email });
+  return NextResponse.json({ valid: true, email: invite.email, role: invite.role });
 }

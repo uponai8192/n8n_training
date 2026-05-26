@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, FormEvent, useEffect, Suspense } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
@@ -16,6 +16,7 @@ function RegisterForm() {
   const [loading, setLoading] = useState(false);
   const [validatingToken, setValidatingToken] = useState(true);
   const [tokenValid, setTokenValid] = useState(false);
+  const [inviteRole, setInviteRole] = useState("PARTNER");
 
   useEffect(() => {
     if (!token) {
@@ -28,6 +29,7 @@ function RegisterForm() {
         if (data.valid) {
           setTokenValid(true);
           if (data.email) setEmail(data.email);
+          if (data.role) setInviteRole(data.role);
         }
         setValidatingToken(false);
       })
@@ -66,7 +68,8 @@ function RegisterForm() {
       return;
     }
 
-    router.push("/dashboard");
+    const session = await getSession();
+    router.push(session?.user.role === "ADMIN" ? "/admin" : "/dashboard");
   }
 
   if (validatingToken) {
@@ -123,7 +126,7 @@ function RegisterForm() {
             <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
-            <p className="text-sm text-emerald-400">Valid invite — no password needed</p>
+            <p className="text-sm text-emerald-400">Valid {inviteRole.toLowerCase()} invite — no password needed</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">

@@ -28,7 +28,7 @@ export async function POST(req: Request) {
       data: {
         name: name.trim(),
         email: email.toLowerCase(),
-        role: "PARTNER",
+        role: invite.role,
       },
     });
 

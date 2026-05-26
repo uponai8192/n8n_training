@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 type InviteData = {
   id: string;
   email: string;
+  role: string;
   token: string;
   used: boolean;
   createdAt: string;
@@ -16,6 +17,7 @@ export function InvitesClient({ invites: initialInvites }: { invites: InviteData
   const router = useRouter();
   const [invites, setInvites] = useState(initialInvites);
   const [email, setEmail] = useState("");
+  const [role, setRole] = useState("PARTNER");
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -28,7 +30,7 @@ export function InvitesClient({ invites: initialInvites }: { invites: InviteData
     const res = await fetch("/api/invites", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, role }),
     });
 
     const data = await res.json();
@@ -41,6 +43,7 @@ export function InvitesClient({ invites: initialInvites }: { invites: InviteData
 
     setInvites([data, ...invites]);
     setEmail("");
+    setRole("PARTNER");
     setCreating(false);
     router.refresh();
   }
@@ -68,16 +71,16 @@ export function InvitesClient({ invites: initialInvites }: { invites: InviteData
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white">Partner Invites</h1>
+        <h1 className="text-2xl font-bold text-white">User Invites</h1>
         <p className="text-slate-400 mt-1">
-          Generate invite links to share with partners. Links expire after 7 days.
+          Generate invite links for partners or admins. Links expire after 7 days.
         </p>
       </div>
 
       {/* Create invite */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 mb-6">
         <h2 className="text-base font-semibold text-white mb-4">Create New Invite</h2>
-        <form onSubmit={handleCreate} className="flex gap-3">
+        <form onSubmit={handleCreate} className="flex gap-3 flex-col sm:flex-row">
           <input
             type="email"
             value={email}
@@ -86,6 +89,14 @@ export function InvitesClient({ invites: initialInvites }: { invites: InviteData
             placeholder="partner@example.com"
             className="flex-1 px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm transition"
           />
+          <select
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            className="px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm transition"
+          >
+            <option value="PARTNER">Partner</option>
+            <option value="ADMIN">Admin</option>
+          </select>
           <button
             type="submit"
             disabled={creating}
@@ -109,6 +120,9 @@ export function InvitesClient({ invites: initialInvites }: { invites: InviteData
             )}
           </button>
         </form>
+        <p className="mt-3 text-xs text-slate-500">
+          Choose <span className="text-slate-300">Partner</span> for standard learners or <span className="text-slate-300">Admin</span> for portal managers.
+        </p>
         {error && (
           <p className="mt-2 text-sm text-red-400">{error}</p>
         )}
@@ -126,9 +140,18 @@ export function InvitesClient({ invites: initialInvites }: { invites: InviteData
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <p className="text-sm font-medium text-white">{invite.email}</p>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className={`text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full border ${
+                        invite.role === "ADMIN"
+                          ? "bg-purple-500/10 border-purple-500/20 text-purple-300"
+                          : "bg-blue-500/10 border-blue-500/20 text-blue-300"
+                      }`}>
+                        {invite.role}
+                      </span>
+                      <p className="text-xs text-slate-500">
                       Expires {new Date(invite.expiresAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                    </p>
+                      </p>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
@@ -188,6 +211,7 @@ export function InvitesClient({ invites: initialInvites }: { invites: InviteData
               <div key={invite.id} className="flex items-center justify-between p-3 bg-slate-900/50 border border-slate-800/50 rounded-lg opacity-60">
                 <div>
                   <p className="text-sm text-slate-400">{invite.email}</p>
+                  <p className="text-xs text-slate-500">{invite.role}</p>
                   <p className="text-xs text-slate-600">
                     Used on {new Date(invite.expiresAt).toLocaleDateString()}
                   </p>
@@ -212,6 +236,7 @@ export function InvitesClient({ invites: initialInvites }: { invites: InviteData
               <div key={invite.id} className="flex items-center justify-between p-3 bg-slate-900/30 border border-slate-800/30 rounded-lg opacity-50">
                 <div>
                   <p className="text-sm text-slate-500">{invite.email}</p>
+                  <p className="text-xs text-slate-600">{invite.role}</p>
                   <p className="text-xs text-slate-600">
                     Expired {new Date(invite.expiresAt).toLocaleDateString()}
                   </p>
