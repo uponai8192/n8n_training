@@ -11,9 +11,8 @@ export default async function PartnersPage() {
   if (!session) redirect("/login");
   if (session.user.role !== "ADMIN") redirect("/dashboard");
 
-  const [partners, exercises] = await Promise.all([
+  const [users, exercises] = await Promise.all([
     prisma.user.findMany({
-      where: { role: "PARTNER" },
       include: {
         completions: {
           include: {
@@ -31,15 +30,16 @@ export default async function PartnersPage() {
 
   const totalExercises = exercises.length;
 
-  const partnersData = partners.map((p) => ({
-    id: p.id,
-    name: p.name,
-    email: p.email,
-    createdAt: p.createdAt.toISOString(),
-    completedCount: p.completions.length,
+  const usersData = users.map((user) => ({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    createdAt: user.createdAt.toISOString(),
+    completedCount: user.completions.length,
     totalExercises,
-    completionPercent: Math.round((p.completions.length / totalExercises) * 100),
-    completions: p.completions.map((c) => ({
+    completionPercent: Math.round((user.completions.length / totalExercises) * 100),
+    completions: user.completions.map((c) => ({
       exerciseId: c.exerciseId,
       exerciseTitle: c.exercise.title,
       exerciseDifficulty: c.exercise.difficulty,
@@ -48,14 +48,14 @@ export default async function PartnersPage() {
       completedAt: c.completedAt.toISOString(),
     })),
     incompleteExercises: exercises
-      .filter((e) => !p.completions.some((c) => c.exerciseId === e.id))
+      .filter((e) => !user.completions.some((c) => c.exerciseId === e.id))
       .map((e) => ({ id: e.id, title: e.title, slug: e.slug, order: e.order, difficulty: e.difficulty })),
   }));
 
   return (
     <div className="min-h-screen bg-slate-950">
       <Navbar />
-      <PartnersClient partners={partnersData} />
+      <PartnersClient users={usersData} currentUserId={session.user.id} />
     </div>
   );
 }
